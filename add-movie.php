@@ -152,17 +152,16 @@
                     }
                     else{
                         $message="<b><p>New movie {$title} {$rate} added! </b> 
-                                    <p> Let's now go and add the categories and actors!
-                                    <form method=\"post\" action=\"add-movie-details.php\">
-                                    <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
-                                    
-                                    </form>";
+                                    <p> Let's now go and add the categories and actors!";
                     }
                 }
                 if (isset($message)){
-                        echo '<div class="w3-grey w3-padding-16" style="margin: 20px 0 0 0; padding:20px; float:left; width:40%; border-radius: 10px;">';
-                        echo '<p><b>'.$message. '</b></p>';
-                        echo '</div>';
+                    $message .= "<form method=\"post\" action=\"add-movie-details.php\">
+                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
+                                </form>";
+                    echo '<div class="w3-grey w3-padding-16" style="margin: 20px 0 0 0; padding:20px; float:left; width:40%; border-radius: 10px;">';
+                    echo '<p><b>'.$message. '</b></p>';
+                    echo '</div>';
                 }
             }
         ?>

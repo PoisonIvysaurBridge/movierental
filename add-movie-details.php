@@ -215,12 +215,24 @@
                 $message=NULL;
                 $date = date("Y-m-d H:i:s");
                 if(!isset($message)){
-                    if (count(array_unique($_SESSION['category'])) != count($_SESSION['category'])){
-                        $message .= "<b><p>Duplicate categories, please remove one!";
+                    
+                    if (empty($_SESSION['category'])) {
+                        $message .= "<b><p>No category added!";
                     }
-                    if (count(array_unique($_SESSION['actor'])) != count($_SESSION['actor'])){
-                        $message .= "<b><p>Duplicate actors, please remove one!";
+                    else{
+                        if (count(array_unique($_SESSION['category'])) != count($_SESSION['category'])){
+                            $message .= "<b><p>Duplicate categories, please remove one!";
+                        }
                     }
+                    if (empty($_SESSION['actor'])) {
+                        $message .= "<b><p>No actor added!";
+                    }
+                    else{
+                        if (count(array_unique($_SESSION['actor'])) != count($_SESSION['actor'])){
+                            $message .= "<b><p>Duplicate actors, please remove one!";
+                        }
+                    }
+                    
                     if(!isset($message)){
                         foreach ($_SESSION['categoryID'] as $row => $col) {
                             $query = "INSERT INTO FILM_CATEGORY(FILM_ID, CATEGORY_ID, LAST_UPDATE)
@@ -251,8 +263,8 @@
                 if (isset($message)){
                         $message .= "<form method=\"post\" action=\"add-inventory.php\">
                                             <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
-                                            </form>";
-                        echo '<div class="w3-grey w3-padding-16" style="margin: 0 0 20px 0; padding:20px; float:left; width:30%; border-radius: 10px;">';
+                                    </form>";
+                        echo '<div class="w3-grey w3-padding-16" style="margin: 20px 90px; padding:20px; float:left; width:30%; border-radius: 10px;">';
                         echo '<p><b>'.$message. '</b></p>';
                         echo '</div>';
                 }

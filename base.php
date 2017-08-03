@@ -60,7 +60,7 @@
                 <div class="w3-col s8 w3-bar">
 					<br>
                     <h4>Welcome!</h4>
-                    <a href="registration.php" class="w3-bar-item w3-button"><i class="fa fa-user"></i>    Register new customer</a>
+                    <!--<a href="registration.php" class="w3-bar-item w3-button"><i class="fa fa-user"></i>    Register new customer</a>-->
                     <a href="logout.php" class="w3-button w3-dark-grey">Logout</a>
                     
                 </div>

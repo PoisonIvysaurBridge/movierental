@@ -4,7 +4,7 @@
 	<?php
         //session_start();
         require_once('mysql_connect.php');
-        $query="SELECT FILM_ID, TITLE FROM FILM";
+        $query="SELECT FILM_ID, TITLE FROM FILM ORDER BY LAST_UPDATE DESC";
         $films=mysqli_query($dbc,$query);
 		$query="SELECT STORE_ID, ADDRESS FROM STORE AS S JOIN ADDRESS AS A ON A.ADDRESS_ID = S.ADDRESS_ID";
 		$stores=mysqli_query($dbc,$query);
@@ -22,7 +22,7 @@
 								else {
 									while($row=mysqli_fetch_array($films,MYSQLI_ASSOC)){
 										echo "
-											<option value=\"{$row['FILM_ID']}\">{$row['TITLE']}</option>
+											<option value=\"{$row['FILM_ID']}\">Film #{$row['FILM_ID']} - {$row['TITLE']}</option>
                                         ";
 									}
 								}
