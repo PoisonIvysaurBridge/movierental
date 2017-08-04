@@ -50,6 +50,7 @@
         else if(isset($_POST['minuscategory'])){
             // removes from the choices
             $_SESSION['category'] = array_diff($_SESSION['category'], array($_POST['category']));
+            $_SESSION['categoryID'] = array_diff($_SESSION['categoryID'], array($_POST['categoryID']));
             //var_dump($_SESSION['category']);
             //var_dump(array($_POST['category']));
         }
@@ -57,6 +58,7 @@
         else if(isset($_POST['minusactor'])){
             // removes from the choices
             $_SESSION['actor'] = array_diff($_SESSION['actor'], array($_POST['actor']));
+            $_SESSION['actorID'] = array_diff($_SESSION['actorID'], array($_POST['actorID']));
         }
         
     ?>
@@ -90,15 +92,18 @@
                     <th></th>
                 </tr>
                 <!-- TABLE DETAILS -->
+                
                 <?php 
                     if(isset($_SESSION['category'])) {   // this displays the contents inside the CATEGORIES session array
                         foreach ($_SESSION['category'] as $key => $value) {
+                            $categoryID = $_SESSION['categoryID'][$key];
                             echo '<tr>';
-                            echo '<td style="text-align: center">' . $value . '</td>';
+                            echo '<td style="text-align: left">' . $value . '</td>';
                             echo '<td><form method="post" action="add-movie-details.php">
                                     <button type="submit" style="margin: 0 0 0 20px;" name="minuscategory">
                                         <span class="w3-text-red fa fa-minus w3-xlarge" onclick=""></span>
                                         <input type="hidden" name="category" value="' . htmlspecialchars($value) . '"/>
+                                        <input type="hidden" name="categoryID" value="' . htmlspecialchars($categoryID) . '"/>
                                     </button>
                                     </form>
                                 </td>';
@@ -125,12 +130,14 @@
                 <?php
                     if(isset($_SESSION['actor'])) {   // this displays the contents inside the ACTORS session array
                         foreach ($_SESSION['actor'] as $key => $value) {
+                            $actorID = $_SESSION['actorID'][$key];
                             echo '<tr>';
-                            echo '<td style="text-align: center">' . $value . '</td>';
+                            echo '<td style="text-align: left">' . $value . '</td>';
                             echo '<td><form method="post" action="add-movie-details.php">
                                     <button type="submit" style="margin: 0" name="minusactor">
                                         <span class="w3-text-red fa fa-minus w3-xlarge" onclick=""></span>
                                         <input type="hidden" name="actor" value="' . htmlspecialchars($value) . '"/>
+                                        <input type="hidden" name="actorID" value="' . htmlspecialchars($actorID) . '"/>
                                     </button>
                                     </form>
                                 </td>';
@@ -232,7 +239,11 @@
                             $message .= "<b><p>Duplicate actors, please remove one!";
                         }
                     }
-                    
+                    if(isset($message)){    // there are invalid inputs
+                        $message .= "<form method=\"post\" action=\"add-movie-details.php\">
+                                        <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
+                                    </form>";
+                    }
                     if(!isset($message)){
                         foreach ($_SESSION['categoryID'] as $row => $col) {
                             $query = "INSERT INTO FILM_CATEGORY(FILM_ID, CATEGORY_ID, LAST_UPDATE)
@@ -258,12 +269,13 @@
                                 $message .= "<b><p>Actor details added! </b>";
                             }
                         }
+                        $message .= "<form method=\"post\" action=\"add-inventory.php\">
+                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
+                                </form>";
                     }
                 }
                 if (isset($message)){
-                        $message .= "<form method=\"post\" action=\"add-inventory.php\">
-                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
-                                    </form>";
+                        
                         echo '<div class="w3-grey w3-padding-16" style="margin: 20px 90px; padding:20px; float:left; width:30%; border-radius: 10px;">';
                         echo '<p><b>'.$message. '</b></p>';
                         echo '</div>';

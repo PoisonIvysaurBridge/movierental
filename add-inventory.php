@@ -10,7 +10,7 @@
 		$stores=mysqli_query($dbc,$query);
     ?>
 	<div class="w3-container"  style="margin: 0 30px;" >
-		<h1 style="text-align: center;">Add Movie Copy</h1>
+		<h1 style="text-align: center;">Add Film Copy to Inventory</h1>
 
 		<div class="w3-containter" style="float:left; width: 60%;">
 			<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" id="usrform">
@@ -30,7 +30,7 @@
 							</select><br>
 				
                   <!--Add New MOVIE Button -->
-                  <input class="w3-button w3-teal w3-round" type="submit" name="submit" value="Add Movie">
+                  <input class="w3-button w3-teal w3-round" type="submit" name="submit" value="Add Film">
 		    </form>
 		</div>
 		

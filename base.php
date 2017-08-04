@@ -44,7 +44,7 @@
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
         <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
         <span class="w3-bar-item w3-right">Movie Rental System
-            <img src="https://previews.123rf.com/images/juliarstudio/juliarstudio1602/juliarstudio160200800/51535030-Movie-spotlight-icon-in-cartoon-style-on-transparent-background-Stock-Vector.jpg" style="height:56px">
+            <img src="http://www.knotandgownfilms.com/wp-content/uploads/2016/03/Film-reel-public-domain.png" style="height:56px">
         </span>
     </div>
 
@@ -73,13 +73,15 @@
         <div class="w3-bar-block">
             <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
             <a href="home.php" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-home fa-fw"></i>  Overview</a>
-            <a href="registration.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-user fa-fw"></i>  New Customer</a>
-            <a href="add-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-plus fa-fw"></i>  Add New Movie</a>
-            <a href="edit-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-edit fa-fw"></i>  Edit Movie</a>
-            <a href="add-inventory.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-plus fa-fw"></i>  Add Movie Copy</a>
-            <!--<a href="delete-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-close fa-fw"></i>  Delete Movie</a>-->
-            <a href="rent-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-plus fa-fw"></i>  Rent Movie</a>
+            <a href="registration.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-address-book fa-fw"></i>  New Customer</a>
+            <a href="rent-film.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-plus fa-fw"></i>  Rent Movie</a>
             <a href="return-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-arrow-down fa-fw"></i>  Return Movie</a>
+            <a href="view-inventory.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bar-chart-o fa-fw"></i>  View Film Copies</a>
+            <a href="add-inventory.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-plus fa-fw"></i>  Add Film Copy</a>
+            <a href="add-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-caret-square-o-right fa-fw"></i>  Add New Movie</a>
+            <a href="edit-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-edit fa-fw"></i>  Edit Movie</a>
+            <!--<a href="delete-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-close fa-fw"></i>  Delete Movie</a>-->
+            
             
             <!--<a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cog fa-fw"></i>  Help & Settings</a><br><br>-->
         </div>
