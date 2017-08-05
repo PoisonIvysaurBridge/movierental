@@ -76,7 +76,7 @@
             <a href="home.php" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-home fa-fw"></i>  Overview</a>
             <a href="registration.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-address-book fa-fw"></i>  New Customer</a>
             <a href="rent-film.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-plus fa-fw"></i>  Rent Movie</a>
-            <a href="return-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-arrow-down fa-fw"></i>  Return Movie</a>
+            <a href="return-film.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cart-arrow-down fa-fw"></i>  Return Movie</a>
             <a href="view-inventory.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bar-chart-o fa-fw"></i>  View Film Copies</a>
             <a href="add-inventory.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-plus fa-fw"></i>  Add Film Copy</a>
             <a href="add-movie.php" class="w3-bar-item w3-button w3-padding"><i class="fa fa-caret-square-o-right fa-fw"></i>  Add New Movie</a>

@@ -85,7 +85,7 @@
                 else {
                     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                     $rental_id = $row['RENTAL_ID'];
-                    $customer_id = $_POST['custID'];
+                    $customer_id = $_SESSION['customerID'];
 
                     $query = "INSERT INTO PAYMENT(PAYMENT_ID, CUSTOMER_ID, STAFF_ID, RENTAL_ID, AMOUNT, PAYMENT_DATE, LAST_UPDATE)
                                 VALUES('0', '{$customer_id}', '{$_SESSION['user']}', '{$rental_id}', '{$amount}', '{$date}', '{$date}')";
@@ -111,6 +111,7 @@
             unset($_SESSION['filmID']);
             unset($_SESSION['rates']);
             unset($_SESSION['inventoryIDs']);
+            unset($_SESSION['customerID']);
             $_SESSION['filmctr'] = 0;
         }
 
@@ -153,7 +154,7 @@
                     ?>
                 </table> <!-- FILMS -->
 
-            </form>    
+           
                 
         </div><!-- first half -->    
         <div class="w3-half">
@@ -253,7 +254,6 @@
                         <label>Amount Recieved:</label>
                         <input type="number" step="any" class="form-control" id="amountrecieved" min="<?php echo $total;?>" required>
                         <input class="w3-button w3-teal w3-section w3-padding w3-round" type="submit" name="confirm" value="Confirm"/>
-                        <input type="hidden" name="custID" value="<?php echo $_POST['customerID']; ?>"/>
                     </div>
                     </div>
                 </form>
@@ -274,6 +274,9 @@
             if (isset($_POST['rent'])){   // if the user clicks RENT button
                 $date = date("Y-m-d H:i:s");
                 $paymentReady = 0;
+                if(!isset($_SESSION['customerID'])){
+                    $_SESSION['customerID'] = $_POST['customerID'];
+                }
                 if(!isset($message)){
                     
                     if (empty($_SESSION['film'])) {
@@ -287,7 +290,10 @@
                     
                     if(!isset($message)){
                             //var_dump($_SESSION['film']);
-                        $_SESSION['inventoryIDs'] = array();//$inventoryIDs = array();
+                        if(!isset($_SESSION['inventoryIDs'])){
+                            $_SESSION['inventoryIDs'] = array();//$inventoryIDs = array();
+                        }
+                        
                         foreach ($_SESSION['filmID'] as $row => $col) {
                             $title = $_SESSION['film'][$row];
                             $query = "SELECT INVENTORY_ID FROM INVENTORY WHERE FILM_ID = '".$col."' AND STATUS = 2 AND STORE_ID = '".$_SESSION['storeID']."' ORDER BY 1 LIMIT 1";
@@ -299,7 +305,7 @@
                                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                                 $inventoryID = $row['INVENTORY_ID'];
                                 $query = "INSERT INTO RENTAL(RENTAL_ID, RENTAL_DATE, INVENTORY_ID, CUSTOMER_ID, RETURN_DATE, STAFF_ID, LAST_UPDATE)
-                                            VALUES('0', '{$date}', '{$inventoryID}', '{$_POST['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
+                                            VALUES('0', '{$date}', '{$inventoryID}', '{$_SESSION['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
                                 $result = mysqli_query($dbc, $query);
                                 if (!$result) {
                                     $message .= "<p>".mysqli_error($dbc);
@@ -316,9 +322,7 @@
                             }
                         }
                         if(isset($message)){
-                            $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" onclick=\"document.getElementById('id02').style.display='block'\" name=\"checkout\" value=\"Checkout\">
-                                            
-                                            ";
+                            $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" onclick=\"document.getElementById('id02').style.display='block'\" name=\"checkout\" value=\"Checkout\">";
                         }
                     }
                 }
