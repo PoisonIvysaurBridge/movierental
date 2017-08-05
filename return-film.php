@@ -6,9 +6,11 @@
             $query = "SELECT C.CUSTOMER_ID, FIRST_NAME, LAST_NAME 
                       FROM CUSTOMER C
                       JOIN RENTAL R ON R.CUSTOMER_ID = C.CUSTOMER_ID
-                      WHERE R.RETURN_DATE IS NULL ORDER BY 1";
-            $result = mysqli_query($dbc, $query);
-            if (!$result) {
+                      WHERE R.RETURN_DATE IS NULL 
+                      GROUP BY 1
+                      ORDER BY 1";
+            $rscust = mysqli_query($dbc, $query);
+            if (!$rscust) {
                 echo mysqli_error($dbc);
             }
             $message = NULL;
@@ -60,7 +62,7 @@
                 Customer: <select name='customer'> 
                             <?php
                             
-                                    while($row=mysqli_fetch_array($result,MYSQLI_ASSOC)){
+                                    while($row=mysqli_fetch_array($rscust,MYSQLI_ASSOC)){
                                         echo "
                                             <option value=\"{$row['CUSTOMER_ID']}\">ID #{$row['CUSTOMER_ID']} - {$row['LAST_NAME']}, {$row['FIRST_NAME']}</option>
                                         ";

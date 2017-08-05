@@ -171,6 +171,7 @@
                                               JOIN RENTAL R ON R.INVENTORY_ID = I.INVENTORY_ID
                                               WHERE I.INVENTORY_ID = '".$col."' 
                                               ORDER BY DATEDUE DESC LIMIT 1";
+                                              //ROUND(CEILING(ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) / RENTAL_DURATION) * RENTAL_RATE,2) AS PENALTY
                                     $result = mysqli_query($dbc, $query);
                                     if (!$result) {
                                         echo mysqli_error($dbc);
@@ -182,15 +183,28 @@
                                         $duration = $row['RENTAL_DURATION'];
                                         $return = $row['RETURN_DATE']; if($return == NULL) $return = date("Y-m-d H:i:s");
                                         
-                                        $daysDue = $row['DAYSDUE']; if($daysDue < 0) $daysDue = 0;
+                                        $daysDue = $row['DAYSDUE'];     if($daysDue < 0) $daysDue = 0;
                                         $rate = $row['RENTAL_RATE'];
-                                        $penalty = $row['PENALTY'];//round(ceil($daysDue / $duration) * $rate, 2);
+                                        $penalty = round(ceil($daysDue / $duration) * $rate, 2); //$row['PENALTY'];
+                                        /*
+                                        if($daysDue <= 0) {
+                                            $daysDue = 0;
+                                            $penalty = round(ceil($daysDue / $duration) * $rate, 2); //$row['PENALTY'];
+                                        }
+                                        else if($daysDue > 0){
+                                            $penalty = $row['PENALTY'];
+                                            //echo "more than 0 ".$penalty;
+                                        }
+                                        */
+                                        
                                         
                                         $total += $penalty;
                                         $_SESSION['penalties'][] = $penalty;//array_push($rates, $rental);
-                                        echo "<label style='text-align:left'>Inventory #{$col} - {$title}: </label>
-                                        <label style='text-align:center'>{$penalty}</label><br>";
+                                        echo "<label style='text-align:left'>Inventory #{$col} - {$title}: </label><br>";
                                         echo "DATE DUE: ".$dateDue."<br>";
+                                        echo "DAYS DUE: ".$daysDue;
+                                        echo "<br> PENALTY: ".$penalty;
+                                        echo "<br><br>";
                                     }
                                 }
                             ?>
