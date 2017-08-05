@@ -251,7 +251,7 @@
                         
                         <h3>Total: <?php echo $total;?></h3>
                         <label>Amount Recieved:</label>
-                        <input type="number" step="any" class="form-control" id="amountrecieved">
+                        <input type="number" step="any" class="form-control" id="amountrecieved" min="<?php echo $total;?>" required>
                         <input class="w3-button w3-teal w3-section w3-padding w3-round" type="submit" name="confirm" value="Confirm"/>
                         <input type="hidden" name="custID" value="<?php echo $_POST['customerID']; ?>"/>
                     </div>
