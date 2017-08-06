@@ -19,7 +19,7 @@
                 $date = date("Y-m-d H:i:s");
                 foreach ($_SESSION['inventoryIDs'] as $key => $value) {
                     $amount = $_SESSION['penalties'][$key];
-                    if($amount > 0){
+                    if($amount > 0){        // ONLY INSERTS TO PAYMENT TABLE WHEN THERE ARE PENALTIES
                         $query = "SELECT RENTAL_ID  FROM RENTAL WHERE INVENTORY_ID = '".$value."' ORDER BY RETURN_DATE DESC LIMIT 1";
                         $result = mysqli_query($dbc, $query);
                         if (!$result) {

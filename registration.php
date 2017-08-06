@@ -165,43 +165,66 @@
                         }
                     }
                     else{*/
+                    try{
+                        $dbc->autocommit(FALSE); // i.e., start transaction
+
+
+                        // INSERTING INTO ADDRESS TABLE
                         $query = "INSERT INTO ADDRESS(ADDRESS_ID, ADDRESS, ADDRESS2, DISTRICT, CITY_ID, POSTAL_CODE, PHONE, LAST_UPDATE)
                                     VALUES('{$addressID}', '{$address1}', '{$address2}', '{$district}', '{$city}', '{$postal}', '{$phone}', '{$date}')";
-                        $result = mysqli_query($dbc, $query);
+                        $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
                         if (!$result) {
-                            echo mysqli_error($dbc);
+                            //echo mysqli_error($dbc);
+                            $result->free();
+                            throw new Exception($dbc->error);
                         } 
                         else {
                             $message .= "<b><p>New address details added! </b>";
                         }
-                   // }
 
-                    // INSERTING INTO CUSTOMER TABLE
-                    $query = "SELECT ADDRESS_ID FROM ADDRESS ORDER BY ADDRESS_ID DESC LIMIT 1";
-                    $result=mysqli_query($dbc,$query);
-                    if (!$result) {
-                        echo mysqli_error($dbc);
-                    }
-                    $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
-                    $addressID = $row['ADDRESS_ID'];
-                    
-                    $query = "INSERT INTO CUSTOMER(CUSTOMER_ID, STORE_ID, FIRST_NAME, LAST_NAME, EMAIL, ADDRESS_ID, ACTIVE, CREATE_DATE, LAST_UPDATE)
-                                VALUES('0', '{$_SESSION['storeID']}', '{$firstname}', '{$lastname}', '{$email}', '{$addressID}', '1', '{$date}', '{$date}')";
-                    $result = mysqli_query($dbc, $query);
-                    if (!$result) {
-                        echo mysqli_error($dbc);
-                    } 
-                    else {
-                        $message .= "<b><p>Customer details added! </b>";
-                    }
+                        // JUST READING FROM TABLE
+                        $query = "SELECT ADDRESS_ID FROM ADDRESS ORDER BY ADDRESS_ID DESC LIMIT 1";
+                        $result=mysqli_query($dbc,$query);
+                        $result = $dbc->query($query);
+                        if (!$result) {
+                            echo mysqli_error($dbc);
+                        }
+                        $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+                        $addressID = $row['ADDRESS_ID'];
+                        
 
+                        // INSERTING INTO CUSTOMER TABLE
+                        $query = "INSERT INTO CUSTOMER(CUSTOMER_ID, STORE_ID, FIRST_NAME, LAST_NAME, EMAIL, ADDRESS_ID, ACTIVE, CREATE_DATE, LAST_UPDATE)
+                                    VALUES('0', '{$_SESSION['storeID']}', '{$firstname}', '{$lastname}', '{$email}', '{$addressID}', '1', '{$date}', '{$date}')";
+                        $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                        if (!$result) {
+                            echo mysqli_error($dbc);
+                            $result->free();
+                            throw new Exception($dbc->error);
+                        } 
+                        else {
+                            $message .= "<b><p>Customer details added! </b>";
+                        }
+
+                        // our SQL queries have been successful. commit them
+                        // and go back to non-transaction mode.
+
+                        $dbc->commit();
+                        $dbc->autocommit(TRUE); // i.e., end transaction
+                    }
+                    catch(Exception $e){
+                        // before rolling back the transaction, you'd want
+                        // to make sure that the exception was db-related
+                        $dbc->rollback(); 
+                        $dbc->autocommit(TRUE); // i.e., end transaction   
+                    }
                 }
 
                 if(isset($message)){   
                     $message .= "<form method=\"post\" action=\"registration.php\">
                                         <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
                                 </form>";
-                    echo '<div class="w3-grey w3-padding-16" style="margin: 0 0 20px 0; padding:20px; float:left; width:30%; border-radius: 10px;">';
+                    echo '<div class="w3-grey w3-padding-16" style="margin: 0 0 20px 0; padding:20px; float:left; width:33%; border-radius: 10px;">';
                     echo '<p><b>'.$message. '</b></p>';
                     echo '</div>';
                 }

@@ -43,24 +43,17 @@
                 if(!isset($message)){
                     $flag=1;
                     $date = date("Y-m-d H:i:s");
-                    //$query="SELECT MENUCODE from MENUITEM where MENUCODE='{$itemCode}'";
-                    //$result=mysqli_query($dbc,$query);
-					/*
-                    if (!$result) {
-                        echo mysqli_error($dbc);
-                    }
-                    if ($row=mysqli_fetch_array($result,MYSQLI_ASSOC)){
-                        $message.="<b><p>Menu code {$itemCode} already exists! Please input another!";
-                    }
-                    else {*/
+                    try{
+                        $dbc->autocommit(FALSE); // i.e., start transaction
                         $query="INSERT INTO INVENTORY (INVENTORY_ID,FILM_ID,STORE_ID, LAST_UPDATE) 
                                 VALUES ('0','{$_POST['film']}','{$_SESSION['storeID']}','$date')";
                         
-                        $result=mysqli_query($dbc,$query);
+                        $result = $dbc->query($query);//$result=mysqli_query($dbc,$query);
                         if (!$result) {
                                 echo 'Query error: ';
                                 echo mysqli_error($dbc);
-                           
+                                $result->free();
+                                throw new Exception($dbc->error);
                         }
                         else{
                             $filmID = $_POST['film'];
@@ -73,7 +66,20 @@
                                 <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
                                 </form>";
                         }
-                    //}
+
+                        // our SQL queries have been successful. commit them
+                        // and go back to non-transaction mode.
+
+                        $dbc->commit();
+                        $dbc->autocommit(TRUE); // i.e., end transaction
+                    }
+                    catch(Exception $e){
+                        // before rolling back the transaction, you'd want
+                        // to make sure that the exception was db-related
+                        $dbc->rollback(); 
+                        $dbc->autocommit(TRUE); // i.e., end transaction   
+                    }
+                        
                 }
                 if (isset($message)){
                     echo '<div class="w3-grey w3-padding-16" style="padding:20px; float:left; width:30%; border-radius: 10px;">';

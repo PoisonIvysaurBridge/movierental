@@ -74,6 +74,9 @@
         }
         if (isset($_POST['confirm'])){
             // insert payment stuffs
+            if(!isset($_SESSION['inventoryIDs'])){
+                $_SESSION['inventoryIDs'] = array();//$inventoryIDs = array();
+            }
             $date = date("Y-m-d H:i:s");
             foreach ($_SESSION['inventoryIDs'] as $key => $value) {
                 $amount = $_SESSION['rates'][$key];
@@ -86,17 +89,34 @@
                     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                     $rental_id = $row['RENTAL_ID'];
                     $customer_id = $_SESSION['customerID'];
+                    try{
+                        $dbc->autocommit(FALSE); // i.e., start transaction
+                        $query = "INSERT INTO PAYMENT(PAYMENT_ID, CUSTOMER_ID, STAFF_ID, RENTAL_ID, AMOUNT, PAYMENT_DATE, LAST_UPDATE)
+                                    VALUES('0', '{$customer_id}', '{$_SESSION['user']}', '{$rental_id}', '{$amount}', '{$date}', '{$date}')";
+                        $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                        if (!$result) {
+                            echo mysqli_error($dbc);
+                            $result->free();
+                            throw new Exception($dbc->error);
+                        } 
+                        else{
+                            $message .= "<p> Payment for Rental #{$rental_id} acknowledged!</p>";
+                            $paymentReady = 1;
+                        }
 
-                    $query = "INSERT INTO PAYMENT(PAYMENT_ID, CUSTOMER_ID, STAFF_ID, RENTAL_ID, AMOUNT, PAYMENT_DATE, LAST_UPDATE)
-                                VALUES('0', '{$customer_id}', '{$_SESSION['user']}', '{$rental_id}', '{$amount}', '{$date}', '{$date}')";
-                    $result = mysqli_query($dbc, $query);
-                    if (!$result) {
-                        echo mysqli_error($dbc);
-                    } 
-                    else{
-                        $message .= "<p> Payment for Rental #{$rental_id} acknowledged!</p>";
-                        $paymentReady = 1;
+                        // our SQL queries have been successful. commit them
+                        // and go back to non-transaction mode.
+
+                        $dbc->commit();
+                        $dbc->autocommit(TRUE); // i.e., end transaction
                     }
+                    catch(Exception $e){
+                        // before rolling back the transaction, you'd want
+                        // to make sure that the exception was db-related
+                        $dbc->rollback(); 
+                        $dbc->autocommit(TRUE); // i.e., end transaction   
+                    }
+                    
                 }
             }/*
             if(isset($message)){
@@ -290,9 +310,7 @@
                     
                     if(!isset($message)){
                             //var_dump($_SESSION['film']);
-                        if(!isset($_SESSION['inventoryIDs'])){
-                            $_SESSION['inventoryIDs'] = array();//$inventoryIDs = array();
-                        }
+                        
                         
                         foreach ($_SESSION['filmID'] as $row => $col) {
                             $title = $_SESSION['film'][$row];
@@ -304,21 +322,39 @@
                             else {
                                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                                 $inventoryID = $row['INVENTORY_ID'];
-                                $query = "INSERT INTO RENTAL(RENTAL_ID, RENTAL_DATE, INVENTORY_ID, CUSTOMER_ID, RETURN_DATE, STAFF_ID, LAST_UPDATE)
-                                            VALUES('0', '{$date}', '{$inventoryID}', '{$_SESSION['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
-                                $result = mysqli_query($dbc, $query);
-                                if (!$result) {
-                                    $message .= "<p>".mysqli_error($dbc);
-                                    $keyfilm = array_search($title, $_SESSION['film']); 
-                                    $keyfilmID = array_search($col, $_SESSION['filmID']); 
-                                    unset($_SESSION['film'][$keyfilm]);
-                                    unset($_SESSION['filmID'][$keyfilmID]);
-                                } 
-                                else {
-                                    $paymentReady = 1;
-                                    $message .= "<b><p>Film #{$col} - {$title} added! </b><br>";
-                                    $_SESSION['inventoryIDs'][] = $inventoryID; //array_push($inventoryIDs, $inventoryID);
+                                try{
+                                    $dbc->autocommit(FALSE); // i.e., start transaction
+                                    $query = "INSERT INTO RENTAL(RENTAL_ID, RENTAL_DATE, INVENTORY_ID, CUSTOMER_ID, RETURN_DATE, STAFF_ID, LAST_UPDATE)
+                                                VALUES('0', '{$date}', '{$inventoryID}', '{$_SESSION['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
+                                    $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                                    if (!$result) {
+                                        $message .= "<p>".mysqli_error($dbc);
+                                        $keyfilm = array_search($title, $_SESSION['film']); 
+                                        $keyfilmID = array_search($col, $_SESSION['filmID']); 
+                                        unset($_SESSION['film'][$keyfilm]);
+                                        unset($_SESSION['filmID'][$keyfilmID]);
+                                        $result->free();
+                                        throw new Exception($dbc->error);
+                                    } 
+                                    else {
+                                        $paymentReady = 1;
+                                        $message .= "<b><p>Film #{$col} - {$title} added! </b><br>";
+                                        $_SESSION['inventoryIDs'][] = $inventoryID; //array_push($inventoryIDs, $inventoryID);
+                                    }
+
+                                    // our SQL queries have been successful. commit them
+                                    // and go back to non-transaction mode.
+
+                                    $dbc->commit();
+                                    $dbc->autocommit(TRUE); // i.e., end transaction
                                 }
+                                catch(Exception $e){
+                                    // before rolling back the transaction, you'd want
+                                    // to make sure that the exception was db-related
+                                    $dbc->rollback(); 
+                                    $dbc->autocommit(TRUE); // i.e., end transaction   
+                                }
+                                
                             }
                         }
                         if(isset($message)){

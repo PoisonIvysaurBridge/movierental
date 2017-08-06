@@ -246,32 +246,69 @@
                     }
                     if(!isset($message)){
                         foreach ($_SESSION['categoryID'] as $row => $col) {
-                            $query = "INSERT INTO FILM_CATEGORY(FILM_ID, CATEGORY_ID, LAST_UPDATE)
-                                        VALUES('{$filmID}', '{$col}', '{$date}')";
-                            $result = mysqli_query($dbc, $query);
-                            if (!$result) {
-                                echo mysqli_error($dbc);
-                            } 
-                            else {
-                                //header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/setup-ingredient.php");
-                                $message .= "<b><p>Category details added! </b>";
+                            try{
+                                $dbc->autocommit(FALSE); // i.e., start transaction
+                                $query = "INSERT INTO FILM_CATEGORY(FILM_ID, CATEGORY_ID, LAST_UPDATE)
+                                            VALUES('{$filmID}', '{$col}', '{$date}')";
+                                $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                                if (!$result) {
+                                    echo mysqli_error($dbc);
+                                    $result->free();
+                                    throw new Exception($dbc->error);
+                                } 
+                                else {
+                                    //header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/setup-ingredient.php");
+                                    $message .= "<b><p>Category details added! </b>";
+                                }
+
+                                // our SQL queries have been successful. commit them
+                                // and go back to non-transaction mode.
+
+                                $dbc->commit();
+                                $dbc->autocommit(TRUE); // i.e., end transaction
                             }
+                            catch(Exception $e){
+                                // before rolling back the transaction, you'd want
+                                // to make sure that the exception was db-related
+                                $dbc->rollback(); 
+                                $dbc->autocommit(TRUE); // i.e., end transaction   
+                            }
+
+                            
                         }
                         foreach ($_SESSION['actorID'] as $row => $col) {
-                            $query = "INSERT INTO FILM_ACTOR(ACTOR_ID, FILM_ID, LAST_UPDATE)
-                                        VALUES('{$col}', '{$filmID}', '{$date}')";
-                            $result = mysqli_query($dbc, $query);
-                            if (!$result) {
-                                echo mysqli_error($dbc);
-                            } 
-                            else {
-                                //header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/setup-ingredient.php");
-                                $message .= "<b><p>Actor details added! </b>";
+                            try{
+                                $dbc->autocommit(FALSE); // i.e., start transaction
+                                $query = "INSERT INTO FILM_ACTOR(ACTOR_ID, FILM_ID, LAST_UPDATE)
+                                            VALUES('{$col}', '{$filmID}', '{$date}')";
+                                $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                                if (!$result) {
+                                    echo mysqli_error($dbc);
+                                    $result->free();
+                                    throw new Exception($dbc->error);
+                                } 
+                                else {
+                                    //header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/setup-ingredient.php");
+                                    $message .= "<b><p>Actor details added! </b>";
+                                }
+
+                                // our SQL queries have been successful. commit them
+                                // and go back to non-transaction mode.
+
+                                $dbc->commit();
+                                $dbc->autocommit(TRUE); // i.e., end transaction
                             }
+                            catch(Exception $e){
+                                // before rolling back the transaction, you'd want
+                                // to make sure that the exception was db-related
+                                $dbc->rollback(); 
+                                $dbc->autocommit(TRUE); // i.e., end transaction   
+                            }
+                            
                         }
                         $message .= "<form method=\"post\" action=\"add-inventory.php\">
                                             <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
-                                </form>";
+                                    </form>";
                     }
                 }
                 if (isset($message)){

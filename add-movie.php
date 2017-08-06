@@ -138,6 +138,26 @@
                                 VALUES('0', '{$title}', '{$desc}', '{$year}', '{$lang}', '$orig', '{$duration}', '{$rate}', '{$length}', '{$replacement}', '{$rating}', '{$features}', '$update')";
                     $result=mysqli_query($dbc,$query);*/
                     // prepare and bind
+                    try{
+                        $dbc->autocommit(FALSE); // i.e., start transaction
+
+
+                        // WRITE QUERIES HERE
+
+
+                        // our SQL queries have been successful. commit them
+                        // and go back to non-transaction mode.
+
+                        $dbc->commit();
+                        $dbc->autocommit(TRUE); // i.e., end transaction
+                    }
+                    catch(Exception $e){
+                        // before rolling back the transaction, you'd want
+                        // to make sure that the exception was db-related
+                        $dbc->rollback(); 
+                        $dbc->autocommit(TRUE); // i.e., end transaction   
+                    }
+                    
                     $filmID = 0;
                     $stmt = $dbc->prepare("INSERT INTO FILM (FILM_ID, TITLE, DESCRIPTION, RELEASE_YEAR, LANGUAGE_ID, ORIGINAL_LANGUAGE_ID, RENTAL_DURATION, RENTAL_RATE, LENGTH, REPLACEMENT_COST, RATING, SPECIAL_FEATURES, LAST_UPDATE)
                                                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

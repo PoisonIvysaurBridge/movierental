@@ -159,54 +159,63 @@
                             <?php
                                 $total = 0;
                                 $_SESSION['penalties'] = array();//$rates = array();
-                                
-                                foreach ($_SESSION['inventoryIDs'] as $row => $col) {
-                                    $title = $_SESSION['film'][$row];
-                                    // GET THE DATE DUE
-                                    $query = "SELECT ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) AS DATEDUE, F.RENTAL_DURATION, R.RETURN_DATE, F.RENTAL_RATE,
-                                                    DATEDIFF(R.RETURN_DATE, ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION)) AS DAYSDUE,
-                                                    ROUND(CEILING(ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) / RENTAL_DURATION) * RENTAL_RATE,2) AS PENALTY
-                                              FROM FILM F
-                                              JOIN INVENTORY I ON I.FILM_ID = F.FILM_ID
-                                              JOIN RENTAL R ON R.INVENTORY_ID = I.INVENTORY_ID
-                                              WHERE I.INVENTORY_ID = '".$col."' 
-                                              ORDER BY DATEDUE DESC LIMIT 1";
-                                              //ROUND(CEILING(ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) / RENTAL_DURATION) * RENTAL_RATE,2) AS PENALTY
-                                    $result = mysqli_query($dbc, $query);
-                                    if (!$result) {
-                                        echo mysqli_error($dbc);
-                                    } 
-                                    else {
-                                        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                                if(isset($_POST['penalty'])){
+                                    ?>
 
-                                        $dateDue = $row['DATEDUE'];
-                                        $duration = $row['RENTAL_DURATION'];
-                                        $return = $row['RETURN_DATE']; if($return == NULL) $return = date("Y-m-d H:i:s");
-                                        
-                                        $daysDue = $row['DAYSDUE'];     if($daysDue < 0) $daysDue = 0;
-                                        $rate = $row['RENTAL_RATE'];
-                                        $penalty = round(ceil($daysDue / $duration) * $rate, 2); //$row['PENALTY'];
-                                        /*
-                                        if($daysDue <= 0) {
-                                            $daysDue = 0;
+                                    <script type="text/javascript">
+                                        document.getElementById('id02').style.display='block';
+                                    </script>
+                                    
+                                    <?php
+                                    foreach ($_SESSION['inventoryIDs'] as $row => $col) {
+                                        $title = $_SESSION['film'][$row];
+                                        // GET THE DATE DUE
+                                        $query = "SELECT ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) AS DATEDUE, F.RENTAL_DURATION, R.RETURN_DATE, F.RENTAL_RATE,
+                                                        DATEDIFF(R.RETURN_DATE, ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION)) AS DAYSDUE,
+                                                        ROUND(CEILING(ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) / RENTAL_DURATION) * RENTAL_RATE,2) AS PENALTY
+                                                FROM FILM F
+                                                JOIN INVENTORY I ON I.FILM_ID = F.FILM_ID
+                                                JOIN RENTAL R ON R.INVENTORY_ID = I.INVENTORY_ID
+                                                WHERE I.INVENTORY_ID = '".$col."' 
+                                                ORDER BY DATEDUE DESC LIMIT 1";
+                                                //ROUND(CEILING(ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) / RENTAL_DURATION) * RENTAL_RATE,2) AS PENALTY
+                                        $result = mysqli_query($dbc, $query);
+                                        if (!$result) {
+                                            echo mysqli_error($dbc);
+                                        } 
+                                        else {
+                                            $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+                                            $dateDue = $row['DATEDUE'];
+                                            $duration = $row['RENTAL_DURATION'];
+                                            $return = $row['RETURN_DATE']; if($return == NULL) $return = date("Y-m-d H:i:s");
+                                            
+                                            $daysDue = $row['DAYSDUE'];     if($daysDue < 0) $daysDue = 0;
+                                            $rate = $row['RENTAL_RATE'];
                                             $penalty = round(ceil($daysDue / $duration) * $rate, 2); //$row['PENALTY'];
+                                            /*
+                                            if($daysDue <= 0) {
+                                                $daysDue = 0;
+                                                $penalty = round(ceil($daysDue / $duration) * $rate, 2); //$row['PENALTY'];
+                                            }
+                                            else if($daysDue > 0){
+                                                $penalty = $row['PENALTY'];
+                                                //echo "more than 0 ".$penalty;
+                                            }
+                                            */
+                                            
+                                            
+                                            $total += $penalty;
+                                            $_SESSION['penalties'][] = $penalty;//array_push($rates, $rental);
+                                            echo "<label style='text-align:left'>Inventory #{$col} - {$title}: </label><br>";
+                                            echo "DATE DUE: ".$dateDue."<br>";
+                                            echo "DAYS DUE: ".$daysDue;
+                                            echo "<br> PENALTY: ".$penalty;
+                                            echo "<br><br>";
                                         }
-                                        else if($daysDue > 0){
-                                            $penalty = $row['PENALTY'];
-                                            //echo "more than 0 ".$penalty;
-                                        }
-                                        */
-                                        
-                                        
-                                        $total += $penalty;
-                                        $_SESSION['penalties'][] = $penalty;//array_push($rates, $rental);
-                                        echo "<label style='text-align:left'>Inventory #{$col} - {$title}: </label><br>";
-                                        echo "DATE DUE: ".$dateDue."<br>";
-                                        echo "DAYS DUE: ".$daysDue;
-                                        echo "<br> PENALTY: ".$penalty;
-                                        echo "<br><br>";
                                     }
                                 }
+                                
                             ?>
                         </div>
                         <div style="margin: 20px 150px">
@@ -270,7 +279,9 @@
                                 }
                             }
                             if(isset($message)){
-                                $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" onclick=\"document.getElementById('id02').style.display='block'\" name=\"penalty\" value=\"Check for Penalties\">";
+                                $message .= "<form method=\"post\" action=\"return-film-details.php\">
+                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"penalty\" value=\"Check for Penalties\">
+                                             </form>";
                             }
                         }
                     }
