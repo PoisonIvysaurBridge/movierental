@@ -265,18 +265,36 @@
                             
                             foreach ($_SESSION['inventoryIDs'] as $row => $col) {
                                 $title = $_SESSION['film'][$row];
-                                $query = "UPDATE RENTAL
-                                          SET RETURN_DATE = '".$date."'
-                                          WHERE INVENTORY_ID = '".$col."' AND RETURN_DATE IS NULL";
-                                $result = mysqli_query($dbc, $query);
-                                if(!$result){
-                                    echo mysqli_error($dbc);
+                                try{
+                                    $dbc->autocommit(FALSE); // i.e., start transaction
+                                    $query = "UPDATE RENTAL
+                                              SET RETURN_DATE = '".$date."'
+                                              WHERE INVENTORY_ID = '".$col."' AND RETURN_DATE IS NULL";
+                                    $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                                    if(!$result){
+                                        echo mysqli_error($dbc);
+                                        $result->free();
+                                        throw new Exception($dbc->error);
+                                    }
+                                    else{
+                                        $forPenalty = TRUE;
+                                        $message .= "<b><p>Inventory #{$col} - {$title} updated! </b><br>";
+                                        
+                                    }
+
+                                    // our SQL queries have been successful. commit them
+                                    // and go back to non-transaction mode.
+
+                                    $dbc->commit();
+                                    $dbc->autocommit(TRUE); // i.e., end transaction
                                 }
-                                else{
-                                    $forPenalty = TRUE;
-                                    $message .= "<b><p>Inventory #{$col} - {$title} updated! </b><br>";
-                                    
+                                catch(Exception $e){
+                                    // before rolling back the transaction, you'd want
+                                    // to make sure that the exception was db-related
+                                    $dbc->rollback(); 
+                                    $dbc->autocommit(TRUE); // i.e., end transaction   
                                 }
+                                
                             }
                             if(isset($message)){
                                 $message .= "<form method=\"post\" action=\"return-film-details.php\">

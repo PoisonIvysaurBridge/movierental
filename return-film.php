@@ -29,22 +29,42 @@
                             $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                             $rental_id = $row['RENTAL_ID'];
                             $customer_id = $_SESSION['customerID'];
+                            try{
+                                $dbc->autocommit(FALSE); // i.e., start transaction
+                                $query = "INSERT INTO PAYMENT(PAYMENT_ID, CUSTOMER_ID, STAFF_ID, RENTAL_ID, AMOUNT, PAYMENT_DATE, LAST_UPDATE)
+                                            VALUES('0', '{$customer_id}', '{$_SESSION['user']}', '{$rental_id}', '{$amount}', '{$date}', '{$date}')";
+                                $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                                if (!$result) {
+                                    echo mysqli_error($dbc);
+                                    $result->free();
+                                    throw new Exception($dbc->error);
+                                } 
+                                else{
+                                    $message .= "<p> Penalty payment for Rental #{$rental_id} acknowledged!</p>";
+                                    $paymentReady = 1;
+                                }
 
-                            $query = "INSERT INTO PAYMENT(PAYMENT_ID, CUSTOMER_ID, STAFF_ID, RENTAL_ID, AMOUNT, PAYMENT_DATE, LAST_UPDATE)
-                                        VALUES('0', '{$customer_id}', '{$_SESSION['user']}', '{$rental_id}', '{$amount}', '{$date}', '{$date}')";
-                            $result = mysqli_query($dbc, $query);
-                            if (!$result) {
-                                echo mysqli_error($dbc);
-                            } 
-                            else{
-                                $message .= "<p> Penalty payment for Rental #{$rental_id} acknowledged!</p>";
-                                $paymentReady = 1;
+                                // our SQL queries have been successful. commit them
+                                // and go back to non-transaction mode.
+
+                                $dbc->commit();
+                                $dbc->autocommit(TRUE); // i.e., end transaction
                             }
+                            catch(Exception $e){
+                                // before rolling back the transaction, you'd want
+                                // to make sure that the exception was db-related
+                                $dbc->rollback(); 
+                                $dbc->autocommit(TRUE); // i.e., end transaction   
+                            }
+                            
                         }
                     }
                     
                 }
-                
+                if(isset($message)){
+                    $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">";
+                    
+                }
             }
             //if (isset($_POST['done'])){
                 unset($_SESSION['film']);
@@ -73,6 +93,14 @@
                 <input type = 'submit' class="w3-button w3-teal w3-round" name='submit' style="margin: 50px 0 0 0" value = 'Submit'><br>
             </form>
             </div>
+            <?php
+                if(isset($message)){
+                    $message = "<form method=\"post\" action=\"return-film.php\">".$message."</form>";
+                    echo '<div class="w3-grey w3-padding-16" style="margin: 20px 90px; padding:20px; float:left; width:30%; border-radius: 10px;">';
+                    echo '<p><b>'.$message. '</b></p>';
+                    echo '</div>';
+                }
+            ?>
 		</div>
         
 <?php endblock() ?>
