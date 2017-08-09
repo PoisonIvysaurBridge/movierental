@@ -1,4 +1,5 @@
 <?php include 'base.php' ?>
+<!--
 <script src = "ajaxmethods.js"></script>
 <script>
     function resetCash(){
@@ -19,6 +20,7 @@
             });
     }
 </script>
+-->
 <?php startblock('content') ?>
     <?php
         require_once('mysql_connect.php');
@@ -32,7 +34,7 @@
         // GET THE LIST OF CUSTOMERS
         $query = "SELECT CUSTOMER_ID, FIRST_NAME, LAST_NAME 
                   FROM CUSTOMER 
-                  WHERE ACTIVE = 1 AND getNumRents(CUSTOMER_ID) <3 
+                  WHERE ACTIVE = 1 AND getNumRents(CUSTOMER_ID) < 3 
                   ORDER BY LAST_NAME, FIRST_NAME";
         $rscust = mysqli_query($dbc,$query);
 
@@ -298,13 +300,33 @@
                     $_SESSION['customerID'] = $_POST['customerID'];
                 }
                 if(!isset($message)){
-                    
+                    // Check if empty
                     if (empty($_SESSION['film'])) {
                         $message .= "<b><p>No film added!";
                     }
-                    else{
-                        if (count(array_unique($_SESSION['film'])) != count($_SESSION['film'])){
+                    // Check if same items in cart
+                    else if (count(array_unique($_SESSION['film'])) != count($_SESSION['film'])){
                             $message .= "<b><p>Duplicate films, please remove one!";
+                    }
+                    // Check if same items in past rentals of the customer
+                    else{
+                        foreach ($_SESSION['film'] as $row => $col) {
+                            $query = "SELECT R.RENTAL_ID, TITLE FROM RENTAL R 
+                                  JOIN INVENTORY I ON I.INVENTORY_ID = R.INVENTORY_ID
+                                  JOIN FILM F ON F.FILM_ID = I.FILM_ID
+                                  WHERE TITLE = '".$col."' AND 
+                                        CUSTOMER_ID = '".$_SESSION['customerID']."' AND
+                                        RETURN_DATE IS NULL";
+                            $result = mysqli_query($dbc, $query);
+                            
+                            if(!$result){
+                                echo mysqli_error($dbc);
+                            }
+                            else{
+                                $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                                if($row != NULL)
+                                    $message .= "<p>{$col} has already been rented! Please return before borrowing again.";
+                            }
                         }
                     }
                     

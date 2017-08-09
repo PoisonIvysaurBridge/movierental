@@ -1,6 +1,7 @@
 <?php include 'base.php' ?>
 
 <?php startblock('content') ?>
+    <script src="jquery-3.2.1.min.js"></script>
     <?php
         require_once('mysql_connect.php');
         //echo $_SESSION['user'];
@@ -14,6 +15,7 @@
             First Name: <input type = 'text' name = 'firstname' required> <br>
             Last Name: <input type = 'text' name = 'lastname' required> <br>
             Email Address: <input type ='text' name = 'email'> <br>
+
             Primary Home Address: 
             <input list="address1" name="address1"  required>
             <datalist id="address1">
@@ -51,8 +53,8 @@
 					
 				?>
             </datalist><br>
-            Home District: <input type = 'text' name = 'district' required> <br>
-            City: <select name="city" required>
+            
+            City: <select name="city" required onchange="dynamicSelect('district.php', this.value)">
                     <?php
                         $query = 'SELECT CITY_ID, CITY FROM CITY';
                         $result = mysqli_query($dbc, $query);
@@ -68,7 +70,16 @@
                         
                     ?>
                 </select><br>
-            Postal Code: <input type = 'number' name = 'postal' min="1"> <br>
+            <div id="change">
+            Home District: <!--<input type = 'text' name = 'district' required> <br>-->
+            <select name="district" class="form-control" required>
+            </select><br>
+        
+            Postal Code: <!--<input type = 'number' name = 'postal' min="1"> <br>-->
+            <select name="postal" class="form-control" required>
+            </select><br>
+            </div>
+
             Phone Number: <input type = 'number' name ='phone' min="1" required> <br>
             <input type = 'submit' class="w3-button w3-teal w3-round" name="register" value = 'Register'><br>
 
@@ -128,8 +139,14 @@
                     $address2 = NULL;
                 }
 
-                $district = $_POST['district'];
                 $city = $_POST['city'];
+
+                if (!empty($_POST['district'])){        // postal
+                    $district = $_POST['district'];
+                }
+                else{
+                    $district = NULL;
+                }
 
                 if (!empty($_POST['postal'])){        // postal
                     $postal = $_POST['postal'];
@@ -232,4 +249,19 @@
         ?>
 
     </div>
+    <script>
+    function dynamicSelect(ajaxPage, city){
+    $.ajax({
+        type: "GET",
+        url: ajaxPage,
+        data: "id=" + city,
+        dataType: "html",
+        success: function(result){
+        $('#change').html(result);
+       // $('#ajaxPostal').html(result);
+        }
+    });
+    }
+    
+    </script>
 <?php endblock() ?>

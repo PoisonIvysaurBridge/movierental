@@ -1,36 +1,42 @@
 <?php include 'base.php' ?>
 
 <?php startblock('content') ?>
-    <div class="w3-container"  style="margin: 0 30px;" >
-        <form action="" method="post">
-        Film Name: <select name = 'mTitle'> <option value = 'NULL' selected> </option> 
-									<option value = 'Film 1'> Film 1 </option>
-									<option value = 'Film 2'> Film 2 </option>
-                    </select> <br>
-        Film Actors (placeholder): <select name = 'actor'> <option value = 'NULL' selected> </option> 
-                                            <option value = 'AC' selected > Actor Current </option>
-                                            <option value = 'AB'> Actor B </option>
-                    </select> <br>
-        Film Category: <select name = 'fCategory'> <option value = 'NULL' selected> </option> 
-                                            <option value = 'CC' selected> Category Current </option>
-                                            <option value = 'CB'> Category B </option>
-                    </select> <br>
-        Film Maturity Rating: <select name = 'fRating'> <option value = 'NULL' selected> </option> 
-                                            <option value = 'RC' selected> Rating Current </option>
-                                            <option value = 'RB'> Rating B </option>
-                    </select> <br>
-        Film Current Language: <select name = 'fcLanguage'> <option value = 'NULL' selected> </option> 
-                                            <option value = 'CLC' selected> Language Current </option>
-                                            <option value = 'CLB'> Language B </option>
-                    </select> <br>
-        Film Original Language: <select name = 'foLanguage'> <option value = 'NULL' selected> </option> 
-                                            <option value = 'OLC' selected> Language Current </option>
-                                            <option value = 'OLB'> Language B </option>
-                    </select> <br>
-        Film Description: <br> <textarea rows='5' cols='40' name ='nDescription'>Current Description</textarea> <br>
-        Release Year: <input type = 'year' name = 'rYear' value = '2017'> <br>
+    <?php
+        //session_start();
+        require_once('mysql_connect.php');
+        $query="SELECT FILM_ID, TITLE FROM FILM ORDER BY LAST_UPDATE";
+        $films=mysqli_query($dbc,$query);
 
-        <input type = 'submit' value = 'Submit Changes!'>
-        </form>
-    </div>
+		$query="SELECT STORE_ID, ADDRESS FROM STORE AS S JOIN ADDRESS AS A ON A.ADDRESS_ID = S.ADDRESS_ID";
+		$stores=mysqli_query($dbc,$query);
+
+        if(isset($_SESSION)){
+            unset($_SESSION['film']);
+        }
+    ?>
+    <div class="w3-container"  style="margin: 0 30px;" >
+		<h1 style="text-align: center;">Edit Movie</h1>
+
+		<div class="w3-containter" style="float:left; width: 60%;">
+			<form method="post" action="edit-movie-details.php" id="usrform">
+                Movie: <select name="film">
+							<?php
+								if (!$films) {
+									echo mysqli_error($dbc);
+								}
+								else {
+									while($row=mysqli_fetch_array($films,MYSQLI_ASSOC)){
+										echo "
+											<option value=\"{$row['FILM_ID']}\">Film #{$row['FILM_ID']} - {$row['TITLE']}</option>
+                                        ";
+									}
+								}
+							?>
+							</select><br>
+				
+                  <!--Add New MOVIE Button -->
+                  <input class="w3-button w3-teal w3-round" type="submit" name="submit" value="Select Movie">
+		    </form>
+		</div>
+    
 <?php endblock() ?>

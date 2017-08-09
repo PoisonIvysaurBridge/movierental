@@ -66,15 +66,20 @@
                                         <th>Film Title</th>
                                         <th>Last Update</th>
                                         <th>Status</th>
+                                        <th>Rented To</th>
+                                        <th>Due On</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <?php
-                                    $query = "SELECT INVENTORY_ID, TITLE, I.LAST_UPDATE, S.DESCRIPTION 
+                                    $query = "SELECT I.INVENTORY_ID, TITLE, I.LAST_UPDATE, S.DESCRIPTION, R.CUSTOMER_ID, C.FIRST_NAME, C.LAST_NAME,
+                                                     ADDDATE(R.RENTAL_DATE, F.RENTAL_DURATION) AS DATEDUE     
                                             FROM INVENTORY I 
-                                            JOIN FILM F ON F.FILM_ID = I.FILM_ID
-                                            JOIN STATUS S ON S.STATUS = I.STATUS
-                                            WHERE STORE_ID = '".$_SESSION['storeID']."'
+                                            LEFT JOIN FILM F ON F.FILM_ID = I.FILM_ID
+                                            LEFT JOIN STATUS S ON S.STATUS = I.STATUS
+                                            LEFT JOIN (SELECT CUSTOMER_ID, RENTAL_DATE, INVENTORY_ID FROM RENTAL WHERE RETURN_DATE IS NULL) R ON R.INVENTORY_ID = I.INVENTORY_ID
+                                            LEFT JOIN CUSTOMER C ON C.CUSTOMER_ID = R.CUSTOMER_ID
+                                            WHERE I.STORE_ID = '".$_SESSION['storeID']."'
                                             ORDER BY INVENTORY_ID";            
                                     $result=mysqli_query($dbc,$query);
                                     if (!$result) {
@@ -87,6 +92,8 @@
                                             <td>{$row['TITLE']}</td>
                                             <td>{$row['LAST_UPDATE']}</td>
                                             <td>{$row['DESCRIPTION']}</td>
+                                            <td>{$row['CUSTOMER_ID']} {$row['FIRST_NAME']} {$row['LAST_NAME']}</td>
+                                            <td>{$row['DATEDUE']}</td>  
                                         </tr>
                                         ";
                                     }
