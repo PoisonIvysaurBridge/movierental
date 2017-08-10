@@ -127,7 +127,7 @@
                         <div style="margin: 20px 150px">
                         <div class="w3-section" style="text-align: left">
                             <label><b>Film</b></label><br>
-                            <select name="inventoryID">
+                            <select name="inventoryID" required>
                                 <?php
                                     
                                         while($row = mysqli_fetch_array($rsfilm, MYSQLI_ASSOC)){

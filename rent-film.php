@@ -25,10 +25,10 @@
     <?php
         require_once('mysql_connect.php');
         // GET THE FILMS THAT ARE IN THE STORE AND ARE AVAILABLE FOR RENTING
-        $query = "SELECT TITLE, F.FILM_ID 
+        $query = "SELECT INVENTORY_ID, TITLE, F.FILM_ID 
                   FROM FILM F JOIN INVENTORY I ON I.FILM_ID = F.FILM_ID
-                  WHERE I.STATUS = 2 AND I.STORE_ID = '".$_SESSION['storeID']."'
-                  GROUP BY F.FILM_ID";
+                  WHERE I.STATUS = 2 AND I.STORE_ID = '".$_SESSION['storeID']."'";
+                  //GROUP BY F.FILM_ID";
         $rsfilm = mysqli_query($dbc,$query);
 
         // GET THE LIST OF CUSTOMERS
@@ -49,17 +49,31 @@
             }
             //echo $_SESSION['filmctr'];
             if($_SESSION['filmctr'] <= 3){
-                $film = $_POST['film'];
-                $_SESSION['filmID'][] = $film;
-                $query = "SELECT TITLE FROM FILM WHERE FILM_ID = '". $film . "';";
-                $filmTitles = mysqli_query($dbc,$query);
-                if(!$filmTitles)
+                //$film = $_POST['film'];
+                $inventoryCopy = $_POST['film'];    // film is the inventory ID now
+
+                //get film id from inventory table based on the posted inventory ID
+                $query = "SELECT FILM_ID FROM INVENTORY WHERE INVENTORY_ID = '".$inventoryCopy."'";
+                $result = mysqli_query($dbc, $query);
+                if (!$result) {
                     echo mysqli_error($dbc);
+                } 
                 else{
-                    $row = mysqli_fetch_array($filmTitles, MYSQLI_ASSOC);
-                    $film = $row['TITLE'];
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    $_SESSION['filmID'][] = $row['FILM_ID'];//$film;
+                    $query = "SELECT TITLE FROM FILM WHERE FILM_ID = '". $row['FILM_ID'] . "';";
+                    $filmTitles = mysqli_query($dbc,$query);
+                    if(!$filmTitles)
+                        echo mysqli_error($dbc);
+                    else{
+                        $row = mysqli_fetch_array($filmTitles, MYSQLI_ASSOC);
+                        $title = $row['TITLE'];
+                    }
+                    $_SESSION['film'][] = $title; 
+                    $_SESSION['inventoryIDs'][] = $inventoryCopy;
+                    //var_dump($_SESSION['film']);echo"<br>";
+                    //var_dump($_SESSION['inventoryIDs']);echo"<br>";
                 }
-                $_SESSION['film'][] = $film; 
             }
             else{
                 $message .= "<b><p>Maximum number of active rents for each customer is 3.</p><br>";
@@ -73,6 +87,10 @@
             // removes from the choices
             $_SESSION['film'] = array_diff($_SESSION['film'], array($_POST['film']));
             $_SESSION['filmID'] = array_diff($_SESSION['filmID'], array($_POST['filmID']));
+            $_SESSION['inventoryIDs'] = array_diff($_SESSION['inventoryIDs'], array($_POST['inventoryIDs']));
+
+            //var_dump($_SESSION['film']);echo"<br>";
+            //var_dump($_SESSION['inventoryIDs']);echo"<br>";
         }
         if (isset($_POST['confirm'])){
             // insert payment stuffs
@@ -149,6 +167,7 @@
                         </button>
                 <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
                     <tr class="w3-dark-grey">
+                        <th>Inventory ID</th>
                         <th>Movie Title</th>
                         <th></th>
                     </tr>
@@ -158,13 +177,16 @@
                         if(isset($_SESSION['film'])) {   // this displays the contents inside the CATEGORIES session array
                             foreach ($_SESSION['film'] as $key => $value) {
                                 $filmID = $_SESSION['filmID'][$key];
+                                $inventoryID = $_SESSION['inventoryIDs'][$key];
                                 echo '<tr>';
+                                echo '<td style="text-align: left">' . $inventoryID . '</td>';
                                 echo '<td style="text-align: left">' . $value . '</td>';
                                 echo '<td><form method="post" action="rent-film.php">
                                         <button type="submit" style="margin: 0 0 0 20px;" name="minus">
                                             <span class="w3-text-red fa fa-minus w3-xlarge" onclick=""></span>
                                             <input type="hidden" name="film" value="' . htmlspecialchars($value) . '"/>
                                             <input type="hidden" name="filmID" value="' . htmlspecialchars($filmID) . '"/>
+                                            <input type="hidden" name="inventoryIDs" value="' . htmlspecialchars($inventoryID) . '"/>
                                         </button>
                                         </form>
                                     </td>';
@@ -190,7 +212,7 @@
                         }
                         else{
                             while($row = mysqli_fetch_array($rscust, MYSQLI_ASSOC)){
-                                echo "<option value=\"{$row['CUSTOMER_ID']}\">{$row['LAST_NAME']}, {$row['FIRST_NAME']}</option>";
+                                echo "<option value=\"{$row['CUSTOMER_ID']}\">ID #{$row['CUSTOMER_ID']} - {$row['LAST_NAME']}, {$row['FIRST_NAME']}</option>";
                             }
                         }
                     ?>
@@ -203,7 +225,7 @@
 
         <!-- FILM MODAL -->
         <div id="id01" class="w3-modal">
-            <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px; margin:75px auto;">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px; margin:5px auto;">
                 <header class="w3-container w3-teal">
                 <div class="w3-center"><br>
                     <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-xlarge w3-hover-red w3-display-topright" title="Close Modal">&times;</span>
@@ -214,8 +236,9 @@
                 <form class="w3-container" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div style="margin: 20px 150px">
                     <div class="w3-section" style="text-align: left">
-                        <label><b>Film</b></label><br>
-                        <select name="film">
+                        <label><b>Film Copy ID</b></label><br>
+                        <input list="film" name="film"  required>
+                        <datalist id="film" required>
                             <?php
                                 if (!$rsfilm) {
                                     echo mysqli_error($dbc);
@@ -223,11 +246,11 @@
                                 else{
                                     while($row = mysqli_fetch_array($rsfilm, MYSQLI_ASSOC)){
                                         if(!in_array($row['TITLE'], $_SESSION['film']))
-                                            echo "<option value=\"{$row['FILM_ID']}\">{$row['TITLE']}</option>";
+                                            echo "<option value=\"{$row['INVENTORY_ID']}\">Copy ID #{$row['INVENTORY_ID']} - {$row['TITLE']}</option>";
                                     }
                                 }
                             ?>
-                        </select><br>
+                        </datalist><br>
                         <input class="w3-button w3-teal w3-section w3-padding w3-round" type="submit" name="add" value="Add"/>
                     </div>
                     </div>
@@ -253,6 +276,7 @@
                             
                             foreach ($_SESSION['filmID'] as $row => $col) {
                                 $title = $_SESSION['film'][$row];
+                                $copy = $_SESSION['inventoryIDs'][$row];
                                 $query = "SELECT RENTAL_RATE FROM FILM WHERE FILM_ID = '".$col."' ";
                                 $result = mysqli_query($dbc, $query);
                                 if (!$result) {
@@ -263,7 +287,7 @@
                                     $rental = $row['RENTAL_RATE'];
                                     $total += $rental;
                                     $_SESSION['rates'][] = $rental;//array_push($rates, $rental);
-                                    echo "<label style='text-align:left'>Film #{$col} - {$title}</label>
+                                    echo "<label style='text-align:left'>Film Copy #{$copy} - {$title}</label>
                                     <label style='text-align:center'>{$rental}</label><br>";
                                 }
                             }
@@ -336,6 +360,8 @@
                         
                         foreach ($_SESSION['filmID'] as $row => $col) {
                             $title = $_SESSION['film'][$row];
+                            $inventoryID = $_SESSION['inventoryIDs'][$row];
+                            /*
                             $query = "SELECT INVENTORY_ID FROM INVENTORY WHERE FILM_ID = '".$col."' AND STATUS = 2 AND STORE_ID = '".$_SESSION['storeID']."' ORDER BY 1 LIMIT 1";
                             $result = mysqli_query($dbc, $query);
                             if (!$result) {
@@ -343,25 +369,29 @@
                             } 
                             else {
                                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                                $inventoryID = $row['INVENTORY_ID'];
+                                */
                                 try{
                                     $dbc->autocommit(FALSE); // i.e., start transaction
                                     $query = "INSERT INTO RENTAL(RENTAL_ID, RENTAL_DATE, INVENTORY_ID, CUSTOMER_ID, RETURN_DATE, STAFF_ID, LAST_UPDATE)
                                                 VALUES('0', '{$date}', '{$inventoryID}', '{$_SESSION['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
                                     $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
                                     if (!$result) {
+                                        echo mysqli_error($dbc);
+                                       // $result->free();
+                                        throw new Exception($dbc->error);
                                         $message .= "<p>".mysqli_error($dbc);
                                         $keyfilm = array_search($title, $_SESSION['film']); 
                                         $keyfilmID = array_search($col, $_SESSION['filmID']); 
+                                        $keyinventoryID = array_search($col, $_SESSION['inventoryIDs']); 
                                         unset($_SESSION['film'][$keyfilm]);
                                         unset($_SESSION['filmID'][$keyfilmID]);
-                                        $result->free();
-                                        throw new Exception($dbc->error);
+                                        unset($_SESSION['inventoryIDs'][$keyinventoryID]);
+                                        
                                     } 
                                     else {
                                         $paymentReady = 1;
                                         $message .= "<b><p>Film #{$col} - {$title} added! </b><br>";
-                                        $_SESSION['inventoryIDs'][] = $inventoryID; //array_push($inventoryIDs, $inventoryID);
+                                        //$_SESSION['inventoryIDs'][] = $inventoryID; //array_push($inventoryIDs, $inventoryID);
                                     }
 
                                     // our SQL queries have been successful. commit them
@@ -377,7 +407,7 @@
                                     $dbc->autocommit(TRUE); // i.e., end transaction   
                                 }
                                 
-                            }
+                            //}
                         }
                         if(isset($message)){
                             $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" onclick=\"document.getElementById('id02').style.display='block'\" name=\"checkout\" value=\"Checkout\">";

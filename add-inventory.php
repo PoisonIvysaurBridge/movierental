@@ -61,9 +61,9 @@
                             $result=mysqli_query($dbc,$query);
                             $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
                             $title = $row['TITLE'];
-                            $message="<b><p>Movie {$title}<br>added! </b> 
+                            $message="<b><p>A copy of {$title} film<br>added! </b> 
                                 <form method=\"post\" action=\"add-movie.php\">
-                                <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
+                                <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"Done\">
                                 </form>";
                         }
 

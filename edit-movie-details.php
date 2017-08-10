@@ -107,21 +107,21 @@
                     $year = (int) $_POST['releaseyear'];
                 }
                 else{
-                    $year = -1; 
+                    $year = NULL; 
                 }
                 
                 if (($_POST['origLang']) != 0){    // original language
                     $orig = $_POST['origLang'];
                 }
                 else{
-                    $orig = -1;
+                    $orig = NULL;
                 }
 
                 if (!empty($_POST['length'])){    // length
                     $length = $_POST['length'];
                 }
                 else{
-                    $length = -1;
+                    $length = NULL;
                 }
 
                 $rating = $_POST['rating'];     // rating
@@ -149,19 +149,19 @@
                     try{
                         $dbc->autocommit(FALSE); // i.e., start transaction
                         $query="UPDATE FILM SET
-                                TITLE = '".$title."',
-                                DESCRIPTION = '".$desc."',
-                                RELEASE_YEAR = '".$year."',
-                                LANGUAGE_ID = '".$lang."',
-                                ORIGINAL_LANGUAGE_ID = '".$orig."',
-                                RENTAL_DURATION = '".$duration."',
-                                RENTAL_RATE = '".$rate."',
-                                LENGTH = '".$length."',
-                                REPLACEMENT_COST = '".$replacement."',
-                                RATING = '".$rating."',
-                                SPECIAL_FEATURES = '".$features."',
-                                LAST_UPDATE = '".$date."'
-                                WHERE FILM_ID = '".$filmID."'";
+                                TITLE = '{$title}',
+                                DESCRIPTION = '{$desc}',
+                                RELEASE_YEAR = '{$year}',
+                                LANGUAGE_ID = '{$lang}',
+                                ORIGINAL_LANGUAGE_ID = '{$orig}',
+                                RENTAL_DURATION = '{$duration}',
+                                RENTAL_RATE = '{$rate}',
+                                LENGTH = '{$length}',
+                                REPLACEMENT_COST = '{$replacement}',
+                                RATING = '{$rating}',
+                                SPECIAL_FEATURES = '{$features}',
+                                LAST_UPDATE = '{$date}'
+                                WHERE FILM_ID = '{$filmID}'";
                         
                         $result = $dbc->query($query);//$result=mysqli_query($dbc,$query);
 
@@ -188,7 +188,7 @@
                 }
                 if (isset($message)){
                     $message .= "<form method=\"post\" action=\"edit-movie.php\">
-                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
+                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"Done\">
                                 </form>";
                     echo '<div class="w3-grey w3-padding-16" style="margin: 20px 0 0 0; padding:20px; float:left; width:40%; border-radius: 10px;">';
                     echo '<p><b>'.$message. '</b></p>';

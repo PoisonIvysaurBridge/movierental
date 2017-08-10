@@ -10,7 +10,7 @@
 		$query="SELECT STORE_ID, ADDRESS FROM STORE AS S JOIN ADDRESS AS A ON A.ADDRESS_ID = S.ADDRESS_ID";
 		$stores=mysqli_query($dbc,$query);
 
-        if(isset($_SESSION)){
+        if(isset($_SESSION['film'])){
             unset($_SESSION['film']);
         }
     ?>
