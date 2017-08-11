@@ -140,10 +140,23 @@
                     // prepare and bind
                     try{
                         $dbc->autocommit(FALSE); // i.e., start transaction
-
-
-                        // WRITE QUERIES HERE
-
+                        $filmID = 0;
+                        $stmt = $dbc->prepare("INSERT INTO FILM (FILM_ID, TITLE, DESCRIPTION, RELEASE_YEAR, LANGUAGE_ID, ORIGINAL_LANGUAGE_ID, RENTAL_DURATION, RENTAL_RATE, LENGTH, REPLACEMENT_COST, RATING, SPECIAL_FEATURES, LAST_UPDATE)
+                                                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                                ");
+                        if(!$stmt->bind_param("issiiiididsss", $filmID, $title, $desc, $year, $lang, $orig, $duration, $rate, $length, $replacement, $rating, $features, $update)){
+                            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                        }
+                        
+                        if (!$stmt->execute()) {
+                            echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                            $stmt->free();
+                            throw new Exception($dbc->error);
+                        }
+                        else{
+                            $message="<b><p>New movie {$title} {$rate} added! </b> 
+                                        <p> Let's now go and add the categories and actors!";
+                        }                     
 
                         // our SQL queries have been successful. commit them
                         // and go back to non-transaction mode.
@@ -158,22 +171,8 @@
                         $dbc->autocommit(TRUE); // i.e., end transaction   
                     }
                     
-                    $filmID = 0;
-                    $stmt = $dbc->prepare("INSERT INTO FILM (FILM_ID, TITLE, DESCRIPTION, RELEASE_YEAR, LANGUAGE_ID, ORIGINAL_LANGUAGE_ID, RENTAL_DURATION, RENTAL_RATE, LENGTH, REPLACEMENT_COST, RATING, SPECIAL_FEATURES, LAST_UPDATE)
-                                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                                            ");
-                                            
-                    if(!$stmt->bind_param("issiiiididsss", $filmID, $title, $desc, $year, $lang, $orig, $duration, $rate, $length, $replacement, $rating, $features, $update)){
-                        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
-
-                    if (!$stmt->execute()) {
-                        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-                    }
-                    else{
-                        $message="<b><p>New movie {$title} {$rate} added! </b> 
-                                    <p> Let's now go and add the categories and actors!";
-                    }
+                    
+                    
                 }
                 if (isset($message)){
                     $message .= "<form method=\"post\" action=\"add-movie-details.php\">

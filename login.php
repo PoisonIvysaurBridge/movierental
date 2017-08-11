@@ -59,9 +59,11 @@
     <!-- Top container -->
     <div id="header" class="w3-bar w3-top w3-black w3-large" style="z-index:4">
         <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
-        <span class="w3-bar-item w3-center" style="margin:0 35%;">
-            <h1>Movie Rental System</h1>
+        <span class="w3-bar-item w3-center" style="display:block;margin-left:auto; margin:right;">
+            <h1 style="display:block;margin-left:auto; margin:right;">Movie Rental System</h1>
+            
         </span>
+        <img src="http://www.knotandgownfilms.com/wp-content/uploads/2016/03/Film-reel-public-domain.png" style="height:90px">
     </div>
     
     <!-- !PAGE CONTENT! -->

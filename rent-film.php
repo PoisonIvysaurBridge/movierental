@@ -50,30 +50,42 @@
             //echo $_SESSION['filmctr'];
             if($_SESSION['filmctr'] <= 3){
                 //$film = $_POST['film'];
+                
                 $inventoryCopy = $_POST['film'];    // film is the inventory ID now
-
-                //get film id from inventory table based on the posted inventory ID
-                $query = "SELECT FILM_ID FROM INVENTORY WHERE INVENTORY_ID = '".$inventoryCopy."'";
+                $query = "SELECT INVENTORY_ID FROM INVENTORY WHERE STATUS = 2 AND INVENTORY_ID = '{$inventoryCopy}' AND STORE_ID = '".$_SESSION['storeID']."'";
                 $result = mysqli_query($dbc, $query);
-                if (!$result) {
-                    echo mysqli_error($dbc);
-                } 
-                else{
-                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                    $_SESSION['filmID'][] = $row['FILM_ID'];//$film;
-                    $query = "SELECT TITLE FROM FILM WHERE FILM_ID = '". $row['FILM_ID'] . "';";
-                    $filmTitles = mysqli_query($dbc,$query);
-                    if(!$filmTitles)
-                        echo mysqli_error($dbc);
-                    else{
-                        $row = mysqli_fetch_array($filmTitles, MYSQLI_ASSOC);
-                        $title = $row['TITLE'];
-                    }
-                    $_SESSION['film'][] = $title; 
-                    $_SESSION['inventoryIDs'][] = $inventoryCopy;
-                    //var_dump($_SESSION['film']);echo"<br>";
-                    //var_dump($_SESSION['inventoryIDs']);echo"<br>";
+                $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                if(empty($row)){
+                    $message .= "<b><p>Inventory Copy not available</p><br>";
                 }
+                else{
+                    //get film id from inventory table based on the posted inventory ID
+                    $query = "SELECT FILM_ID FROM INVENTORY WHERE INVENTORY_ID = '".$inventoryCopy."'";
+                    $result = mysqli_query($dbc, $query);
+                    if (!$result) {
+                        echo mysqli_error($dbc);
+                    } 
+                    else{
+                        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                        if(!isset($_SESSION['film'])){
+                            $_SESSION['film'] = array();
+                        }
+                        $_SESSION['filmID'][] = $row['FILM_ID'];//$film;
+                        $query = "SELECT TITLE FROM FILM WHERE FILM_ID = '". $row['FILM_ID'] . "';";
+                        $filmTitles = mysqli_query($dbc,$query);
+                        if(!$filmTitles)
+                            echo mysqli_error($dbc);
+                        else{
+                            $row = mysqli_fetch_array($filmTitles, MYSQLI_ASSOC);
+                            $title = $row['TITLE'];
+                        }
+                        $_SESSION['film'][] = $title; 
+                        $_SESSION['inventoryIDs'][] = $inventoryCopy;
+                        //var_dump($_SESSION['film']);echo"<br>";
+                        //var_dump($_SESSION['inventoryIDs']);echo"<br>";
+                    }
+                }
+                
             }
             else{
                 $message .= "<b><p>Maximum number of active rents for each customer is 3.</p><br>";
@@ -175,6 +187,7 @@
                     
                     <?php 
                         if(isset($_SESSION['film'])) {   // this displays the contents inside the CATEGORIES session array
+                            //var_dump($_SESSION['film']);
                             foreach ($_SESSION['film'] as $key => $value) {
                                 $filmID = $_SESSION['filmID'][$key];
                                 $inventoryID = $_SESSION['inventoryIDs'][$key];
@@ -273,22 +286,30 @@
                         <?php
                             $total = 0;
                             $_SESSION['rates'] = array();//$rates = array();
-                            
-                            foreach ($_SESSION['filmID'] as $row => $col) {
-                                $title = $_SESSION['film'][$row];
-                                $copy = $_SESSION['inventoryIDs'][$row];
-                                $query = "SELECT RENTAL_RATE FROM FILM WHERE FILM_ID = '".$col."' ";
-                                $result = mysqli_query($dbc, $query);
-                                if (!$result) {
-                                    echo mysqli_error($dbc);
-                                } 
-                                else {
-                                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                                    $rental = $row['RENTAL_RATE'];
-                                    $total += $rental;
-                                    $_SESSION['rates'][] = $rental;//array_push($rates, $rental);
-                                    echo "<label style='text-align:left'>Film Copy #{$copy} - {$title}</label>
-                                    <label style='text-align:center'>{$rental}</label><br>";
+                            if(isset($_POST['checkout'])){
+                                    ?>
+
+                                    <script type="text/javascript">
+                                        document.getElementById('id02').style.display='block';
+                                    </script>
+                                    
+                                    <?php
+                                foreach ($_SESSION['filmID'] as $row => $col) {
+                                    $title = $_SESSION['film'][$row];
+                                    $copy = $_SESSION['inventoryIDs'][$row];
+                                    $query = "SELECT RENTAL_RATE FROM FILM WHERE FILM_ID = '".$col."' ";
+                                    $result = mysqli_query($dbc, $query);
+                                    if (!$result) {
+                                        echo mysqli_error($dbc);
+                                    } 
+                                    else {
+                                        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                                        $rental = $row['RENTAL_RATE'];
+                                        $total += $rental;
+                                        $_SESSION['rates'][] = $rental;//array_push($rates, $rental);
+                                        echo "<label style='text-align:left'>Film Copy #{$copy} - {$title}</label>
+                                        <label style='text-align:center'>{$rental}</label><br>";
+                                    }
                                 }
                             }
                         ?>
@@ -376,17 +397,14 @@
                                                 VALUES('0', '{$date}', '{$inventoryID}', '{$_SESSION['customerID']}', NULL, '{$_SESSION['user']}', '{$date}')";
                                     $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
                                     if (!$result) {
-                                        echo mysqli_error($dbc);
-                                       // $result->free();
-                                        throw new Exception($dbc->error);
                                         $message .= "<p>".mysqli_error($dbc);
                                         $keyfilm = array_search($title, $_SESSION['film']); 
                                         $keyfilmID = array_search($col, $_SESSION['filmID']); 
-                                        $keyinventoryID = array_search($col, $_SESSION['inventoryIDs']); 
+                                        $keyinventoryID = array_search($inventoryID, $_SESSION['inventoryIDs']); 
                                         unset($_SESSION['film'][$keyfilm]);
-                                        unset($_SESSION['filmID'][$keyfilmID]);
+                                        unset($_SESSION['filmID'][$row]);
                                         unset($_SESSION['inventoryIDs'][$keyinventoryID]);
-                                        
+                                        throw new Exception($dbc->error);
                                     } 
                                     else {
                                         $paymentReady = 1;
@@ -410,7 +428,9 @@
                             //}
                         }
                         if(isset($message)){
-                            $message .= "<input class=\"w3-button w3-teal w3-round\" type=\"submit\" onclick=\"document.getElementById('id02').style.display='block'\" name=\"checkout\" value=\"Checkout\">";
+                            $message .= "<form method=\"post\" action=\"rent-film.php\">
+                                            <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"checkout\" value=\"Checkout\">
+                                             </form>";
                         }
                     }
                 }

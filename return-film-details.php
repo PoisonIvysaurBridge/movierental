@@ -132,7 +132,7 @@
                                     
                                         while($row = mysqli_fetch_array($rsfilm, MYSQLI_ASSOC)){
                                             if(!in_array($row['TITLE'], $_SESSION['film']))
-                                                echo "<option value=\"{$row['INVENTORY_ID']}\">{$row['TITLE']}</option>";
+                                                echo "<option value=\"{$row['INVENTORY_ID']}\">Film Copy ID #{$row['INVENTORY_ID']} - {$row['TITLE']}</option>";
                                         }
                                     
                                 ?>
