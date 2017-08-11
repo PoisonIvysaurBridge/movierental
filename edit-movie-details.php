@@ -22,14 +22,142 @@
             $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
         }
 
+        
+
+        if(isset($_POST['addcategory'])){
+            try{
+                $dbc->autocommit(FALSE); // i.e., start transaction
+                $stmt = $dbc->prepare("INSERT INTO FILM_CATEGORY(CATEGORY_ID, FILM_ID) VALUES (?, ?);");
+                if(!$stmt->bind_param("ii", $category, $film)){
+                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+                $category = $_POST['category'];
+                $film = $_SESSION['film'];
+                if (!$stmt->execute()) {
+                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    $stmt->free();
+                    throw new Exception($dbc->error);
+                }
+                else{
+                    $message="<b><p> Movie categories updated! </b> 
+                                <p> Let's now go and add the categories and actors!";
+                }  
+                // our SQL queries have been successful. commit them
+                // and go back to non-transaction mode.
+
+                $dbc->commit();
+                $dbc->autocommit(TRUE); // i.e., end transaction
+            }
+            catch(Exception $e){
+                // before rolling back the transaction, you'd want
+                // to make sure that the exception was db-related
+                $dbc->rollback(); 
+                $dbc->autocommit(TRUE); // i.e., end transaction   
+            }
+            
+        }
+        else if(isset($_POST['addactor'])){
+            try{
+                $dbc->autocommit(FALSE); // i.e., start transaction
+                $stmt = $dbc->prepare("INSERT INTO FILM_ACTOR(ACTOR_ID, FILM_ID) VALUES (?, ?);");
+                if(!$stmt->bind_param("ii", $actor, $film)){
+                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+                $actor = $_POST['actor'];
+                $film = $_SESSION['film'];
+                if (!$stmt->execute()) {
+                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    $stmt->free();
+                    throw new Exception($dbc->error);
+                }
+                else{
+                    $message="<b><p> Movie actors updated! </b>";
+                }  
+                // our SQL queries have been successful. commit them
+                // and go back to non-transaction mode.
+
+                $dbc->commit();
+                $dbc->autocommit(TRUE); // i.e., end transaction
+            }
+            catch(Exception $e){
+                // before rolling back the transaction, you'd want
+                // to make sure that the exception was db-related
+                $dbc->rollback(); 
+                $dbc->autocommit(TRUE); // i.e., end transaction   
+            }
+        }
+        else if(isset($_POST['minuscategory'])){
+            try{
+                $dbc->autocommit(FALSE); // i.e., start transaction
+                $stmt = $dbc->prepare("DELETE FROM FILM_CATEGORY WHERE CATEGORY_ID = ? AND FILM_ID = ?");                
+                if(!$stmt->bind_param("ii", $category, $film)){
+                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+                $category = $_POST['categoryID'];
+                $film = $_SESSION['film'];
+                if (!$stmt->execute()) {
+                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    $stmt->free();
+                    throw new Exception($dbc->error);
+                }
+                else{
+                    $message="<b><p> Movie categories updated! </b> 
+                                <p> Let's now go and add the categories and actors!";
+                }  
+                // our SQL queries have been successful. commit them
+                // and go back to non-transaction mode.
+
+                $dbc->commit();
+                $dbc->autocommit(TRUE); // i.e., end transaction
+            }
+            catch(Exception $e){
+                // before rolling back the transaction, you'd want
+                // to make sure that the exception was db-related
+                $dbc->rollback(); 
+                $dbc->autocommit(TRUE); // i.e., end transaction   
+            }
+            
+        }
+        else if(isset($_POST['minusactor'])){
+            try{
+                $dbc->autocommit(FALSE); // i.e., start transaction
+                $stmt = $dbc->prepare("DELETE FROM FILM_ACTOR WHERE ACTOR_ID = ? AND FILM_ID = ?");
+                if(!$stmt->bind_param("ii", $actor, $film)){
+                    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                }
+
+                $actor = $_POST['actorID'];
+                $film = $_SESSION['film'];
+                if (!$stmt->execute()) {
+                    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+                    $stmt->free();
+                    throw new Exception($dbc->error);
+                }
+                else{
+                    $message="<b><p> Movie actors updated! </b>";
+                }  
+                // our SQL queries have been successful. commit them
+                // and go back to non-transaction mode.
+
+                $dbc->commit();
+                $dbc->autocommit(TRUE); // i.e., end transaction
+            }
+            catch(Exception $e){
+                // before rolling back the transaction, you'd want
+                // to make sure that the exception was db-related
+                $dbc->rollback(); 
+                $dbc->autocommit(TRUE); // i.e., end transaction   
+            }
+        }
+
         $query = "SELECT CATEGORY_ID, NAME FROM CATEGORY WHERE CATEGORY_ID NOT IN(SELECT CATEGORY_ID FROM FILM_CATEGORY WHERE FILM_ID = {$_SESSION['film']})";
         $rscategory = mysqli_query($dbc,$query);
                                     
         $query = "SELECT ACTOR_ID, FIRST_NAME, LAST_NAME FROM ACTOR WHERE ACTOR_ID NOT IN(SELECT ACTOR_ID FROM FILM_ACTOR WHERE FILM_ID = {$_SESSION['film']}) ORDER BY LAST_NAME";
         $rsactor = mysqli_query($dbc,$query);
-
-
-
     ?>
     <div class="w3-container"  style="margin: 0 30px;" >
 		<h1 style="text-align: center;">Edit Movie: Film #<?php echo $row['FILM_ID']." - "; echo $row['TITLE']; ?></h1>
@@ -101,7 +229,6 @@
                     <th></th>
                 </tr>
                 <!-- CATEGORY TABLE DETAILS -->
-                
                 <?php 
                     $query = "SELECT NAME, FC.CATEGORY_ID FROM FILM_CATEGORY FC JOIN CATEGORY C ON C.CATEGORY_ID = FC.CATEGORY_ID WHERE FC.FILM_ID = {$_SESSION['film']}";
                     $dbCategories = mysqli_query($dbc, $query);
@@ -126,7 +253,6 @@
                         }
                     }
                 ?>
-
             </table> <!-- CATEGORIES -->
             <br>
             <h3>Add Actors</h3>
@@ -138,7 +264,6 @@
                     <th>Actor</th>
                     <th></th>
                 </tr>
-
                 <!-- ACTOR TABLE DETAILS -->
                 <?php
                     $query = "SELECT LAST_NAME, FIRST_NAME, FA.ACTOR_ID FROM FILM_ACTOR FA JOIN ACTOR A ON A.ACTOR_ID = FA.ACTOR_ID WHERE FA.FILM_ID = {$_SESSION['film']}";
