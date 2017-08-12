@@ -41,7 +41,10 @@
 
         $message = NULL;
         if(isset($_POST['add'])){
-            if(count($_SESSION['inventoryIDs']) < 3){
+            if(!isset($_SESSION['film'])){
+                $_SESSION['film'] = array();
+            }
+            if(count($_SESSION['film']) < 3){
                 //$film = $_POST['film'];
                 
                 $inventoryCopy = $_POST['film'];    // film is the inventory ID now
@@ -50,7 +53,6 @@
                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                 if(empty($row)){
                     $message .= "<b><p>Inventory Copy not available in store.</p><br>";
-                    $_SESSION['filmctr']--;
                 }
                 else{
                     //get film id from inventory table based on the posted inventory ID
@@ -92,7 +94,11 @@
             $_SESSION['film'] = array_diff($_SESSION['film'], array($_POST['film']));
             $_SESSION['filmID'] = array_diff($_SESSION['filmID'], array($_POST['filmID']));
             $_SESSION['inventoryIDs'] = array_diff($_SESSION['inventoryIDs'], array($_POST['inventoryIDs']));
-
+            if(count($_SESSION['film'] != count($_SESSION['inventoryIDs']))){
+                unset($_SESSION['film']);
+                unset($_SESSION['filmID']);
+                unset($_SESSION['inventoryIDs']);
+            }
             //var_dump($_SESSION['film']);echo"<br>";
             //var_dump($_SESSION['inventoryIDs']);echo"<br>";
         }
@@ -153,12 +159,11 @@
             }*/
             unset($_SESSION['film']);
             unset($_SESSION['filmID']);
-            unset($_SESSION['rates']);
             unset($_SESSION['inventoryIDs']);
+            unset($_SESSION['rates']);
             unset($_SESSION['customerID']);
             $_SESSION['filmctr'] = 0;
         }
-
     ?>
 
     <div class="w3-container"  style="margin: 0 30px;" >
@@ -343,7 +348,10 @@
                     }
                     // Check if same items in cart
                     else if (count(array_unique($_SESSION['film'])) != count($_SESSION['film'])){
-                            $message .= "<b><p>Duplicate films, please remove one!";
+                            $message .= "<b><p>Duplicate films! Only one copy is allowed to be rented.";
+                            unset($_SESSION['film']);
+                            unset($_SESSION['filmID']);
+                            unset($_SESSION['inventoryIDs']);
                     }
                     // Check if same items in past rentals of the customer
                     else{
@@ -400,7 +408,7 @@
                                     } 
                                     else {
                                         $paymentReady = 1;
-                                        $message .= "<b><p>Film #{$col} - {$title} added! </b><br>";
+                                        $message .= "<b><p>Copy #{$inventoryID} - {$title} added! </b><br>";
                                         //$_SESSION['inventoryIDs'][] = $inventoryID; //array_push($inventoryIDs, $inventoryID);
                                     }
 
