@@ -276,36 +276,37 @@
                         }
                     }
                 }
-                try{
-                    $dbc->autocommit(FALSE); // i.e., start transaction
+                if(!isset($message)){   
+                    try{
+                        $dbc->autocommit(FALSE); // i.e., start transaction
 
-                    // INSERTING INTO CUSTOMER TABLE
-                    $query = "INSERT INTO CUSTOMER(CUSTOMER_ID, STORE_ID, FIRST_NAME, LAST_NAME, EMAIL, ADDRESS_ID, ACTIVE, CREATE_DATE, LAST_UPDATE)
-                                VALUES(0, '{$_SESSION['storeID']}', '{$firstname}', '{$lastname}', '{$email}', {$addressID}, '1', '{$date}', '{$date}')";
-                    $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
-                    if (!$result) {
-                        echo mysqli_error($dbc);
-                        $result->free();
-                        throw new Exception($dbc->error);
-                    } 
-                    else {
-                        $message .= "<b><p>Customer details added! </b>";
+                        // INSERTING INTO CUSTOMER TABLE
+                        $query = "INSERT INTO CUSTOMER(CUSTOMER_ID, STORE_ID, FIRST_NAME, LAST_NAME, EMAIL, ADDRESS_ID, ACTIVE, CREATE_DATE, LAST_UPDATE)
+                                    VALUES(0, '{$_SESSION['storeID']}', '{$firstname}', '{$lastname}', '{$email}', {$addressID}, '1', '{$date}', '{$date}')";
+                        $result = $dbc->query($query);//$result = mysqli_query($dbc, $query);
+                        if (!$result) {
+                            echo mysqli_error($dbc);
+                            $result->free();
+                            throw new Exception($dbc->error);
+                        } 
+                        else {
+                            $message .= "<b><p>Customer details added! </b>";
+                        }
+
+                        // our SQL queries have been successful. commit them
+                        // and go back to non-transaction mode.
+
+                        $dbc->commit();
+                        $dbc->autocommit(TRUE); // i.e., end transaction
                     }
-
-                    // our SQL queries have been successful. commit them
-                    // and go back to non-transaction mode.
-
-                    $dbc->commit();
-                    $dbc->autocommit(TRUE); // i.e., end transaction
-                }
-                catch(Exception $e){
-                    // before rolling back the transaction, you'd want
-                    // to make sure that the exception was db-related
-                    $dbc->rollback(); 
-                    $dbc->autocommit(TRUE); // i.e., end transaction   
-                }
+                    catch(Exception $e){
+                        // before rolling back the transaction, you'd want
+                        // to make sure that the exception was db-related
+                        $dbc->rollback(); 
+                        $dbc->autocommit(TRUE); // i.e., end transaction   
+                    }
                 
-
+                }
                 if(isset($message)){   
                     $message .= "<form method=\"post\" action=\"registration.php\">
                                         <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"OK\">
