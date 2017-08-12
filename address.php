@@ -150,6 +150,7 @@
                 Postal Code: <input type = 'number' name = 'postal' min="1"> <br>
                 
                 Phone Number: <input type = 'number' name ='phone' min="1" required> <br>
+                <input type="hidden" name="addressID" value="NULL">
             </div>
             <input type = 'submit' class="w3-button w3-teal w3-round" name="register" value = 'Register'><br>
         </form>
@@ -163,7 +164,7 @@
                 //var_dump($addressID);
 
                 $firstname = $_POST['firstname'];
-                    $lastname = $_POST['lastname'];
+                $lastname = $_POST['lastname'];
 
                     if (!empty($_POST['email'])){        // email
                         $email = $_POST['email'];
