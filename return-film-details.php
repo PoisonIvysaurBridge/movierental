@@ -30,14 +30,6 @@
 
         $message = NULL;
         if(isset($_POST['add'])){
-            if(isset($_SESSION['filmctr'] )){
-                $_SESSION['filmctr']++;
-            }
-            else{
-                $_SESSION['filmctr'] = 1;
-            }
-            //echo $_SESSION['filmctr'];
-            if($_SESSION['filmctr'] <= 3){
                 $inventoryID = $_POST['inventoryID'];
                 
                 $query = "SELECT F.FILM_ID, F.TITLE FROM FILM F JOIN INVENTORY I ON I.FILM_ID = F.FILM_ID WHERE INVENTORY_ID = '".$inventoryID."'";
@@ -51,16 +43,8 @@
                     $_SESSION['film'][] = $row['TITLE']; 
                     $_SESSION['inventoryIDs'][] = $inventoryID;
                 }
-            }
-            else{
-                $message .= "<b><p>Maximum number of active rents for each customer is 3.</p><br>";
-            }
-            
         }
         else if(isset($_POST['minus'])){
-            if(isset($_SESSION['filmctr'] )){
-                $_SESSION['filmctr']--;
-            }
             // removes from the choices
             $_SESSION['film'] = array_diff($_SESSION['film'], array($_POST['film']));
             $_SESSION['filmID'] = array_diff($_SESSION['filmID'], array($_POST['filmID']));

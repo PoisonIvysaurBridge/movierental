@@ -82,7 +82,7 @@
                     }
                 }
             ?>
-            <h3>Add Category</h3>
+            <h3>Add Categories</h3>
                     <button onclick="document.getElementById('id01').style.display='block'" class="w3-button">
                         <span class="table-add w3-text-green fa fa-plus w3-xxlarge"></span>
                     </button>

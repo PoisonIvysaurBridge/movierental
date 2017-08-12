@@ -39,7 +39,15 @@
 <style>.w3-bar-block a{text-decoration:none;}</style>
 <?php startblock('content') ?>
 
-    <?php require_once('mysql_connect.php');?>
+    <?php 
+        require_once('mysql_connect.php');
+        if (isset($_POST['ok'])){
+            unset($_SESSION['category']);
+            unset($_SESSION['actor']);
+            unset($_SESSION['categoryID']);
+            unset($_SESSION['actorID']);
+        }
+    ?>
     <div id="wrapper">
     <div class="w3-container" style="text-align:center;">
         <div id="page-wrapper">

@@ -110,6 +110,7 @@
                         if (!empty($row)) {
                             $_SESSION['user'] = $row['STAFF_ID'];
                             $_SESSION['storeID'] = $row['STORE_ID'];
+                            //$_SESSION['username'] = $row['USERNAME'];
                             header("Location: http://".$_SERVER['HTTP_HOST'].  dirname($_SERVER['PHP_SELF'])."/home.php");
                         }
 
@@ -157,7 +158,7 @@
         <?php endblock() ?>
         <!-- Footer -->
         <footer>
-            <p align=center>IVAPOS</a></p>
+            <p align=center>Powered by PHP</a></p>
         </footer>
     <!-- End page content -->
     </div>

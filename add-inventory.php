@@ -62,7 +62,7 @@
                             $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
                             $title = $row['TITLE'];
                             $message="<b><p>A copy of {$title} film<br>added! </b> 
-                                <form method=\"post\" action=\"add-movie.php\">
+                                <form method=\"post\" action=\"view-inventory.php\">
                                 <input class=\"w3-button w3-teal w3-round\" type=\"submit\" name=\"ok\" value=\"Done\">
                                 </form>";
                         }

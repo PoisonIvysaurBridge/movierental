@@ -219,7 +219,7 @@
         
         <div class="w3-half">
 
-            <h3>Add Category</h3>
+            <h3>Edit Categories</h3>
                     <button onclick="document.getElementById('id01').style.display='block'" class="w3-button">
                         <span class="table-add w3-text-green fa fa-plus w3-xxlarge"></span>
                     </button>
@@ -255,7 +255,7 @@
                 ?>
             </table> <!-- CATEGORIES -->
             <br>
-            <h3>Add Actors</h3>
+            <h3>Edit Actors</h3>
                     <button onclick="document.getElementById('id02').style.display='block'" class="w3-button">
                         <span class="table-add w3-text-green fa fa-plus w3-xxlarge"></span>
                     </button>

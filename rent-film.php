@@ -41,14 +41,7 @@
 
         $message = NULL;
         if(isset($_POST['add'])){
-            if(isset($_SESSION['filmctr'] )){
-                $_SESSION['filmctr']++;
-            }
-            else{
-                $_SESSION['filmctr'] = 1;
-            }
-            //echo $_SESSION['filmctr'];
-            if($_SESSION['filmctr'] <= 3){
+            if(count($_SESSION['inventoryIDs']) < 3){
                 //$film = $_POST['film'];
                 
                 $inventoryCopy = $_POST['film'];    // film is the inventory ID now
@@ -56,7 +49,8 @@
                 $result = mysqli_query($dbc, $query);
                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                 if(empty($row)){
-                    $message .= "<b><p>Inventory Copy not available</p><br>";
+                    $message .= "<b><p>Inventory Copy not available in store.</p><br>";
+                    $_SESSION['filmctr']--;
                 }
                 else{
                     //get film id from inventory table based on the posted inventory ID
@@ -93,9 +87,7 @@
             
         }
         else if(isset($_POST['minus'])){
-            if(isset($_SESSION['filmctr'] )){
-                $_SESSION['filmctr']--;
-            }
+            
             // removes from the choices
             $_SESSION['film'] = array_diff($_SESSION['film'], array($_POST['film']));
             $_SESSION['filmID'] = array_diff($_SESSION['filmID'], array($_POST['filmID']));
