@@ -69,7 +69,7 @@
                                 </thead>
                                 <tbody>
                                 <?php
-                                    $addressRs = $dbc->query("SELECT ADDRESS_ID, ADDRESS, ADDRESS2, DISTRICT, POSTAL_CODE, PHONE FROM ADDRESS WHERE CITY_ID=".$_POST['city']." GROUP BY 2, 3, 4, 5 ORDER BY ADDRESS");
+                                    $addressRs = $dbc->query("SELECT ADDRESS_ID, ADDRESS, ADDRESS2, DISTRICT, POSTAL_CODE, PHONE FROM ADDRESS WHERE CITY_ID=".$_POST['city']." GROUP BY 1, 2, 3, 4, 5 ORDER BY ADDRESS");
                                     if (!$addressRs) {
                                         echo mysqli_error($dbc);
                                     }
