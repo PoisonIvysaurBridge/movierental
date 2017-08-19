@@ -8,7 +8,7 @@
                       JOIN RENTAL R ON R.CUSTOMER_ID = C.CUSTOMER_ID
                       WHERE R.RETURN_DATE IS NULL 
                       GROUP BY 1
-                      ORDER BY 1";
+                      ORDER BY 3,2";
             $rscust = mysqli_query($dbc, $query);
             if (!$rscust) {
                 echo mysqli_error($dbc);
