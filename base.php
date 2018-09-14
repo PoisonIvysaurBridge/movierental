@@ -56,7 +56,7 @@
         <?php startblock('userprofile') ?>
             <div class="w3-container w3-row">
                 <div class="w3-col s4">
-                <img src="https://poorishaadi.com/user-icon-png-pnglogocom.png" class="w3-circle w3-margin-right" style="width:46px; margin-top:20px;">
+                <img src="https://github.com/PoisonIvysaurBridge/comet-rats/blob/master/rats/static/user%20logo.png?raw=true" class="w3-circle w3-margin-right" style="width:46px; margin-top:20px;">
                 </div>
                 <div class="w3-col s8 w3-bar">
 					<br>
